@@ -5,7 +5,7 @@
 ![Dashboard Preview](https://via.placeholder.com/1200x600/0a0a0a/ffffff?text=Masterorganizer+Enterprise+Dashboard)
 
 ## 🚀 Live Demo
-> **Deployed on Vercel:** [Link to be added after deployment]
+> **Deployed on Vercel:** [https://masterorganizer.vercel.app/](https://masterorganizer.vercel.app/)
 
 ---
 
