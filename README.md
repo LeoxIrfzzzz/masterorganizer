@@ -2,7 +2,6 @@
 
 **Masterorganizer** is a premium, decentralized employee and shop management application built for ultimate privacy and zero recurring cloud costs. Utilizing a "Local Node Architecture", all data—including tasks, financial claims, and user credentials—is stored entirely offline within the browser's persistent local storage.
 
-![Dashboard Preview](https://via.placeholder.com/1200x600/0a0a0a/ffffff?text=Masterorganizer+Enterprise+Dashboard)
 
 ## 🚀 Live Demo
 > **Deployed on Vercel:** [https://masterorganizer.vercel.app/](https://masterorganizer.vercel.app/)
