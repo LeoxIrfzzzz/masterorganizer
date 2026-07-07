@@ -601,6 +601,25 @@ export const logActivity = (text: string): void => {
   saveDB(db);
 };
 
+export const clearMonthlyData = (monthString: string): void => {
+  const db = loadDB();
+  
+  db.attendance = db.attendance.filter(a => !a.date.startsWith(monthString));
+  
+  db.tasks = db.tasks.filter(t => {
+    if (t.status !== 'completed') return true;
+    const taskDate = new Date(parseInt(t.id)).toISOString().startsWith(monthString);
+    return !taskDate;
+  });
+
+  if (db.claims) {
+    db.claims = db.claims.filter(c => !c.date.startsWith(monthString));
+  }
+
+  saveDB(db);
+  logActivity(`[System] Admin cleared historical data for ${monthString}.`);
+};
+
 // --- SYSTEM NOTIFICATIONS ---
 export const getNotifications = (): AppNotification[] => loadDB().notifications || [];
 

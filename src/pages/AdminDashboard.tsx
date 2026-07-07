@@ -7,7 +7,7 @@ import {
   updateLeaveRequest, getCompanyInfo, setCompanyInfo, clearDB, exportDB, importDB,
   updateUser, deleteUser, deleteTask, logActivity, getActivityLog, updateUserTheme,
   getAnnouncements, addAnnouncement, getClaims, updateClaimStatus, getConnectedDevices,
-  getPeerId, initPeer, User, Task, Attendance, LeaveRequest, ActivityLogItem, Announcement, FinancialClaim
+  getPeerId, initPeer, clearMonthlyData, User, Task, Attendance, LeaveRequest, ActivityLogItem, Announcement, FinancialClaim
 } from '../db/store';
 import { QRCodeSVG } from 'qrcode.react';
 import { Users, CheckCircle, AlertCircle, Trash2, Edit2, Activity, Award, Briefcase, Tag, Download, Upload, Pin } from 'lucide-react';
@@ -24,13 +24,25 @@ function DashboardHome() {
   const [newAnnouncement, setNewAnnouncement] = useState('');
 
   const loadData = () => {
+    const selectedMonth = sessionStorage.getItem('selectedMonth') || new Date().toISOString().slice(0, 7);
     const users = getUsers().filter(u => u.role === 'employee');
-    const attendance = getAttendance();
-    const tasks = getTasks();
+    const allAttendance = getAttendance();
+    const allTasks = getTasks();
     const leaves = getLeaveRequests();
     
+    // Filter data by selected month
+    const attendance = allAttendance.filter(a => a.date.startsWith(selectedMonth));
+    const tasks = allTasks.filter(t => {
+      // For tasks, filter by completed date (if completed) or just include if incomplete? 
+      // Actually, if we filter tasks entirely by month, we won't see incomplete tasks from past months. 
+      // The prompt asks for monthly database of tasks assigned and completed.
+      // We will assume ID (timestamp) determines assigned month.
+      const taskMonth = new Date(parseInt(t.id)).toISOString().slice(0, 7);
+      return taskMonth === selectedMonth || t.status !== 'completed';
+    });
+
     const today = new Date().toISOString().split('T')[0];
-    const presentToday = attendance.filter(a => a.date === today && a.status === 'present').length;
+    const presentToday = allAttendance.filter(a => a.date === today && a.status === 'present').length;
     
     setStats({
       employees: users.length,
@@ -39,13 +51,13 @@ function DashboardHome() {
       pendingLeaves: leaves.filter(l => l.status === 'pending').length
     });
 
-    const last7Days = Array.from({length: 7}, (_, i) => {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      return d.toISOString().split('T')[0];
-    }).reverse();
-
-    setAttendanceData(last7Days.map(date => ({
+    // We can show attendance data for the whole month instead of just 7 days, or keep 7 days if they fit in the month.
+    // Let's show all days in the selected month up to today (or end of month).
+    const [y, m] = selectedMonth.split('-');
+    const daysInMonth = new Date(parseInt(y), parseInt(m), 0).getDate();
+    const monthDays = Array.from({length: daysInMonth}, (_, i) => `${selectedMonth}-${(i+1).toString().padStart(2, '0')}`);
+    
+    setAttendanceData(monthDays.map(date => ({
       name: date.split('-').slice(1).join('/'),
       Present: attendance.filter(a => a.date === date && a.status === 'present').length,
     })));
@@ -333,7 +345,13 @@ function TaskManagement() {
   const [draftSubTasks, setDraftSubTasks] = useState<{id:string, text:string, completed:boolean}[]>([]);
 
   const loadData = () => {
-    setTasks(getTasks());
+    const selectedMonth = sessionStorage.getItem('selectedMonth') || new Date().toISOString().slice(0, 7);
+    const allTasks = getTasks();
+    const filteredTasks = allTasks.filter(t => {
+      const taskMonth = new Date(parseInt(t.id)).toISOString().slice(0, 7);
+      return taskMonth === selectedMonth || t.status !== 'completed';
+    });
+    setTasks(filteredTasks);
     setEmployees(getUsers().filter(u => u.role === 'employee'));
   };
 
@@ -737,7 +755,10 @@ function FinancialManagement() {
   const [employees, setEmployees] = useState<User[]>([]);
 
   const loadData = () => {
-    setClaims(getClaims());
+    const selectedMonth = sessionStorage.getItem('selectedMonth') || new Date().toISOString().slice(0, 7);
+    const allClaims = getClaims();
+    const filteredClaims = allClaims.filter(c => c.date.startsWith(selectedMonth));
+    setClaims(filteredClaims);
     setEmployees(getUsers());
   };
 
@@ -795,6 +816,9 @@ function FinancialManagement() {
 export default function AdminDashboard() {
   const [activities, setActivities] = useState<ActivityLogItem[]>([]);
   const [isLogsOpen, setIsLogsOpen] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    return sessionStorage.getItem('selectedMonth') || new Date().toISOString().slice(0, 7);
+  });
   
   useEffect(() => {
     const loadAct = () => setActivities(getActivityLog().slice(0, 15));
@@ -803,9 +827,31 @@ export default function AdminDashboard() {
     return () => window.removeEventListener('local-db-updated', loadAct);
   }, []);
 
+  const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const m = e.target.value;
+    setSelectedMonth(m);
+    sessionStorage.setItem('selectedMonth', m);
+    window.dispatchEvent(new Event('local-db-updated'));
+  };
+
+  const handleClearMonth = () => {
+    if(window.confirm(`Are you sure you want to completely clear all attendance, completed tasks, and claims for ${selectedMonth}?`)) {
+      clearMonthlyData(selectedMonth);
+      window.dispatchEvent(new Event('local-db-updated'));
+    }
+  };
+
   return (
     <div className="dashboard-layout">
       <Header role="admin" onToggleLogs={() => setIsLogsOpen(!isLogsOpen)} />
+      
+      {/* Global Month Selector */}
+      <div style={{ padding: '1rem 2rem', display: 'flex', gap: '1rem', alignItems: 'center', borderBottom: '1px solid var(--glass-border)', background: 'var(--glass-bg)' }}>
+        <strong style={{ opacity: 0.8 }}>Data View:</strong>
+        <input type="month" className="form-control" style={{ padding: '0.5rem' }} value={selectedMonth} onChange={handleMonthChange} />
+        <button className="btn btn-secondary" style={{ marginLeft: 'auto', border: '1px solid var(--danger-color)', color: 'var(--danger-color)' }} onClick={handleClearMonth}>Clear {selectedMonth} Data</button>
+      </div>
+
       <div style={{ flex: 1, position: 'relative' }}>
         <div style={{ padding: '2rem' }}>
           <Routes>
