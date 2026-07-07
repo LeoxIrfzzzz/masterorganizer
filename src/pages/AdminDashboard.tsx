@@ -233,7 +233,7 @@ function EmployeeManagement() {
       <h1 style={{ marginBottom: '2rem' }}>Workforce Directory</h1>
       <div className="glass-panel" style={{ marginBottom: '2rem' }}>
         <h2>Onboard Employee</h2>
-        <form onSubmit={handleAddEmployee} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+        <form onSubmit={handleAddEmployee} className="grid-3" style={{ marginTop: '1rem' }}>
           <div className="form-group"><label>Full Name</label><input type="text" className="form-control" value={name} onChange={e => setName(e.target.value)} required /></div>
           <div className="form-group"><label>Job Title</label><input type="text" className="form-control" value={job} onChange={e => setJob(e.target.value)} required /></div>
           <div className="form-group"><label>Department</label><input type="text" className="form-control" value={department} onChange={e => setDepartment(e.target.value)} required /></div>
@@ -256,7 +256,7 @@ function EmployeeManagement() {
             <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {deptEmployees.map(emp => (
                 editId === emp.id ? (
-                  <form key={emp.id} onSubmit={handleSaveEdit} className="glass-card" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                  <form key={emp.id} onSubmit={handleSaveEdit} className="glass-card grid-3" style={{ gap: '1rem' }}>
                     <input type="text" className="form-control" value={editData.name || ''} onChange={e => setEditData({...editData, name: e.target.value})} placeholder="Name" required />
                     <input type="text" className="form-control" value={editData.job || ''} onChange={e => setEditData({...editData, job: e.target.value})} placeholder="Job" required />
                     <input type="text" className="form-control" value={editData.department || ''} onChange={e => setEditData({...editData, department: e.target.value})} placeholder="Dept" required />
@@ -341,7 +341,7 @@ function TaskManagement() {
     <div>
       <h1 style={{ marginBottom: '2rem' }}>Task Dispatch & Control</h1>
       <div className="glass-panel" style={{ marginBottom: '2rem' }}>
-        <form onSubmit={handleAddTask} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+        <form onSubmit={handleAddTask} className="grid-3" style={{ gap: '1rem' }}>
           <div className="form-group" style={{ gridColumn: '1 / span 2' }}>
             <label>Task Title</label>
             <input type="text" className="form-control" value={title} onChange={e => setTitle(e.target.value)} required />

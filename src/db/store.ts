@@ -81,6 +81,15 @@ export interface FinancialClaim {
   status: 'pending' | 'approved' | 'denied';
 }
 
+export interface AppNotification {
+  id: string;
+  targetUserId: string;
+  title: string;
+  body: string;
+  timestamp: string;
+  read: boolean;
+}
+
 export interface CompanyInfo {
   name: string;
   email: string;
@@ -98,6 +107,7 @@ export interface Database {
   messages: Message[];
   announcements: Announcement[];
   claims: FinancialClaim[];
+  notifications: AppNotification[];
   companyInfo: CompanyInfo;
 }
 
@@ -113,6 +123,7 @@ const getInitialDB = (): Database => ({
   messages: [],
   announcements: [],
   claims: [],
+  notifications: [],
   companyInfo: {
     name: '',
     email: '',
@@ -132,7 +143,8 @@ export const loadDB = (): Database => {
         ...parsed, 
         companyInfo: { ...getInitialDB().companyInfo, ...(parsed.companyInfo || {}) },
         announcements: parsed.announcements || [],
-        claims: parsed.claims || []
+        claims: parsed.claims || [],
+        notifications: parsed.notifications || []
       };
     } catch (e) {
       return getInitialDB();
@@ -317,6 +329,10 @@ export const addTask = (task: Omit<Task, 'id' | 'status'>): void => {
   const db = loadDB();
   db.tasks.push({ id: Date.now().toString(), status: 'incomplete', ...task });
   saveDB(db);
+  
+  if (task.assignedTo) {
+    pushNotification(task.assignedTo, 'New Task Assigned', `You have been assigned a new task: ${task.title}`);
+  }
 };
 
 export const updateTaskStatus = (taskId: string, status: Task['status']): void => {
@@ -325,6 +341,10 @@ export const updateTaskStatus = (taskId: string, status: Task['status']): void =
   if (taskIndex > -1) {
     db.tasks[taskIndex].status = status;
     saveDB(db);
+    
+    // Notify Admin
+    const user = db.users.find(u => u.id === db.tasks[taskIndex].assignedTo);
+    pushNotification('admin', 'Task Updated', `${user?.name || 'An employee'} updated task "${db.tasks[taskIndex].title}" to ${status}.`);
   }
 };
 
@@ -358,6 +378,9 @@ export const clockIn = (userId: string, mood: number): void => {
     db.attendance.push({ id: Date.now().toString(), userId, date: today, status: 'present', clockIn: time, mood });
   }
   saveDB(db);
+
+  const user = db.users.find(u => u.id === userId);
+  pushNotification('admin', 'Employee Clock-In', `${user?.name || 'An employee'} clocked in. (Mood: ${mood}/5)`);
 };
 
 export const clockOut = (userId: string): void => {
@@ -443,4 +466,31 @@ export const logActivity = (text: string): void => {
   db.activityLog.unshift({ id: Date.now().toString(), text, timestamp: new Date().toISOString() });
   if (db.activityLog.length > 100) db.activityLog.pop();
   saveDB(db);
+};
+
+// --- SYSTEM NOTIFICATIONS ---
+export const getNotifications = (): AppNotification[] => loadDB().notifications || [];
+
+export const pushNotification = (targetUserId: string, title: string, body: string): void => {
+  const db = loadDB();
+  if (!db.notifications) db.notifications = [];
+  db.notifications.push({
+    id: Date.now().toString() + Math.random(),
+    targetUserId,
+    title,
+    body,
+    timestamp: new Date().toISOString(),
+    read: false
+  });
+  saveDB(db);
+};
+
+export const markNotificationRead = (notificationId: string): void => {
+  const db = loadDB();
+  if (!db.notifications) return;
+  const idx = db.notifications.findIndex(n => n.id === notificationId);
+  if (idx > -1) {
+    db.notifications[idx].read = true;
+    saveDB(db);
+  }
 };

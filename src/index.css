@@ -356,3 +356,14 @@ select.form-control option {
 .kanban-card:active {
   cursor: grabbing;
 }
+
+/* Responsive Tables */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive table {
+  min-width: 700px;
+}

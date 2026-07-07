@@ -320,7 +320,7 @@ function EmployeeClaims() {
       <h1 style={{ marginBottom: '2rem' }}>Reimbursement Claims</h1>
       <div className="glass-panel" style={{ marginBottom: '2rem' }}>
         <h2>Submit New Expense</h2>
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+        <form onSubmit={handleSubmit} className="grid-2" style={{ marginTop: '1rem' }}>
           <div className="form-group"><label>Amount ($)</label><input type="number" step="0.01" className="form-control" value={amount} onChange={e=>setAmount(e.target.value)} required /></div>
           <div className="form-group"><label>Category</label><select className="form-control" value={category} onChange={e=>setCategory(e.target.value)}><option>Travel</option><option>Office Supplies</option><option>Meals</option><option>Other</option></select></div>
           <div className="form-group" style={{ gridColumn: '1 / span 2' }}><label>Description / Reason</label><textarea className="form-control" value={description} onChange={e=>setDescription(e.target.value)} required rows={2} /></div>

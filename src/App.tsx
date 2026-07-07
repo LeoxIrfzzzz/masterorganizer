@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LandingPage, AdminAuth, EmployeeAuth } from './pages/Auth';
 import AdminDashboard from './pages/AdminDashboard';
 import EmployeeDashboard from './pages/EmployeeDashboard';
-import { getCurrentUser } from './db/store';
+import { getCurrentUser, getNotifications, markNotificationRead } from './db/store';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -21,7 +21,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRole }
 
 function App() {
   React.useEffect(() => {
-    const applyTheme = () => {
+    // Request notification permission on mount
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    const handleDBUpdate = () => {
+      // 1. Apply Theme
       const user = getCurrentUser();
       const color = user?.themeColor || '#ffffff';
       document.documentElement.style.setProperty('--glow-color', color);
@@ -31,10 +37,20 @@ function App() {
       } else {
         document.documentElement.classList.remove('light-mode');
       }
+
+      // 2. Process Notifications
+      if (user && 'Notification' in window && Notification.permission === 'granted') {
+        const unread = getNotifications().filter(n => n.targetUserId === user.id && !n.read);
+        unread.forEach(n => {
+          new Notification(n.title, { body: n.body, icon: '/favicon.svg' });
+          markNotificationRead(n.id);
+        });
+      }
     };
-    applyTheme();
-    window.addEventListener('local-db-updated', applyTheme);
-    return () => window.removeEventListener('local-db-updated', applyTheme);
+
+    handleDBUpdate();
+    window.addEventListener('local-db-updated', handleDBUpdate);
+    return () => window.removeEventListener('local-db-updated', handleDBUpdate);
   }, []);
 
   return (
