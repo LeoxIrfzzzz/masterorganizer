@@ -6,7 +6,7 @@ import { Shield, Users, ArrowRight } from 'lucide-react';
 export function LandingPage() {
   return (
     <div className="landing-container">
-      <h1 style={{ fontSize: '4rem', marginBottom: '0.5rem', animation: 'fadeInDown 1s' }}>MASTER<span style={{color: 'var(--accent-color)'}}>ORGANIZER</span></h1>
+      <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', marginBottom: '0.5rem', animation: 'fadeInDown 1s' }}>MASTER<span style={{color: 'var(--accent-color)'}}>ORGANIZER</span></h1>
       <p style={{ fontSize: '1.2rem', marginBottom: '3rem', opacity: 0.8, letterSpacing: '2px', textTransform: 'uppercase' }}>Ultimate Productivity & Synchronization</p>
       
       <div className="landing-cards">
@@ -86,7 +86,7 @@ export function AdminAuth() {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', width: '100%' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', width: '100%', padding: '1rem' }}>
       <div className="glass-panel" style={{ width: '100%', maxWidth: '400px' }}>
         <Link to="/" style={{ textDecoration: 'none', color: 'var(--accent-color)', display: 'inline-block', marginBottom: '1rem' }}>&larr; Back to Home</Link>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
@@ -162,7 +162,7 @@ export function EmployeeAuth() {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', width: '100%' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', width: '100%', padding: '1rem' }}>
       <div className="glass-panel" style={{ width: '100%', maxWidth: '400px' }}>
         <Link to="/" style={{ textDecoration: 'none', color: 'var(--accent-color)', display: 'inline-block', marginBottom: '1rem' }}>&larr; Back to Home</Link>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
