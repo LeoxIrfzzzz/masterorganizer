@@ -841,6 +841,38 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleExportCSV = () => {
+    const allAttendance = getAttendance().filter(a => a.date.startsWith(selectedMonth));
+    const allClaims = getClaims().filter(c => c.date.startsWith(selectedMonth));
+    const allUsers = getUsers();
+
+    let csvContent = "Date,Employee Name,Status,Entry Time,Exit Time,Total Claims ($)\n";
+
+    // Sort attendance by date then by user
+    allAttendance.sort((a, b) => a.date.localeCompare(b.date) || a.userId.localeCompare(b.userId)).forEach(record => {
+      const user = allUsers.find(u => u.id === record.userId);
+      const name = user ? user.name : 'Unknown';
+      const entry = record.clockIn ? new Date(record.clockIn).toLocaleTimeString() : 'N/A';
+      const exit = record.clockOut ? new Date(record.clockOut).toLocaleTimeString() : 'N/A';
+      
+      const userClaims = allClaims.filter(c => c.userId === record.userId && c.date.startsWith(record.date));
+      const totalClaims = userClaims.reduce((sum, c) => sum + c.amount, 0);
+
+      csvContent += `${record.date},"${name}",${record.status},${entry},${exit},${totalClaims}\n`;
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `Monthly_Data_${selectedMonth}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+
   return (
     <div className="dashboard-layout">
       <Header role="admin" onToggleLogs={() => setIsLogsOpen(!isLogsOpen)} />
@@ -849,7 +881,10 @@ export default function AdminDashboard() {
       <div style={{ padding: '1rem 2rem', display: 'flex', gap: '1rem', alignItems: 'center', borderBottom: '1px solid var(--glass-border)', background: 'var(--glass-bg)' }}>
         <strong style={{ opacity: 0.8 }}>Data View:</strong>
         <input type="month" className="form-control" style={{ padding: '0.5rem' }} value={selectedMonth} onChange={handleMonthChange} />
-        <button className="btn btn-secondary" style={{ marginLeft: 'auto', border: '1px solid var(--danger-color)', color: 'var(--danger-color)' }} onClick={handleClearMonth}>Clear {selectedMonth} Data</button>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: '1rem' }}>
+          <button className="btn btn-primary" onClick={handleExportCSV}>View Data (CSV)</button>
+          <button className="btn btn-secondary" style={{ border: '1px solid var(--danger-color)', color: 'var(--danger-color)' }} onClick={handleClearMonth}>Clear {selectedMonth} Data</button>
+        </div>
       </div>
 
       <div style={{ flex: 1, position: 'relative' }}>
