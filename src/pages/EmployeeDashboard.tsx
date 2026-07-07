@@ -163,7 +163,7 @@ function EmployeeHome() {
                 onClick={handleClockOut}
                 disabled={disableExit}
               >
-                Exit
+                {hasClockedOut ? 'Exited' : 'Exit'}
               </button>
             </div>
 
@@ -194,7 +194,7 @@ function EmployeeHome() {
               onClick={handleClockOut}
               disabled={disableExit}
             >
-              Emergency / Today Out
+              {hasClockedOut ? 'Done for Today' : 'Emergency / Today Out'}
             </button>
           </div>
         </div>
