@@ -241,7 +241,7 @@ function EmployeeKanban() {
               {tasks.filter(t => t.status === col.status).map(t => (
                 <div key={t.id} className="glass-card kanban-card" draggable onDragStart={(e) => handleDragStart(e, t.id)}>
                   
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <strong style={{ display: 'block', marginBottom: '0.4rem' }}>{t.title}</strong>
                     {t.priority === 'High' && <span className="badge badge-danger">High</span>}
                     {t.priority === 'Medium' && <span className="badge badge-warning">Med</span>}
@@ -267,7 +267,7 @@ function EmployeeKanban() {
                     </div>
                   )}
 
-                  <div style={{ fontSize: '0.75rem', opacity: 0.6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '0.75rem', opacity: 0.6, display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span>Due: {t.timeline}</span>
                     <select 
                       value={t.status} 
@@ -332,7 +332,7 @@ function EmployeeClaims() {
         <h2>My Submitted Claims</h2>
         <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {claims.sort((a,b)=>new Date(b.date).getTime() - new Date(a.date).getTime()).map(c => (
-            <div key={c.id} className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div key={c.id} className="glass-card" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <h4 style={{ margin: 0 }}>${c.amount.toFixed(2)} - {c.category}</h4>
                 <div style={{ fontSize: '0.9rem', opacity: 0.8, marginTop: '0.5rem', fontStyle: 'italic' }}>"{c.description}" ({new Date(c.date).toLocaleDateString()})</div>
@@ -393,7 +393,7 @@ function EmployeeLeave() {
         <h2>My Request History</h2>
         <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {requests.map(r => (
-            <div key={r.id} className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div key={r.id} className="glass-card" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <h4 style={{ margin: 0 }}>Date: {r.date}</h4>
                 <div style={{ fontSize: '0.9rem', opacity: 0.8, marginTop: '0.5rem', fontStyle: 'italic' }}>"{r.reason}"</div>

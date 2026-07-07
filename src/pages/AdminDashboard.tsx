@@ -149,7 +149,7 @@ function DashboardHome() {
             {leaderboard.length === 0 ? <p>No completed tasks yet.</p> : leaderboard.map((l, i) => {
               const completedTasks = getTasks().filter(t => t.assignedTo === l.id && t.status === 'completed').length;
               return (
-                <div key={l.id} className="glass-card" style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div key={l.id} className="glass-card" style={{ padding: '1rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <strong>#{i+1}</strong> {l.name}
                     {l.badges && l.badges.map(b => (
@@ -249,7 +249,7 @@ function EmployeeManagement() {
         const deptEmployees = employees.filter(e => (e.department || 'Unassigned') === dept);
         return (
           <div key={dept} className="glass-panel" style={{ marginBottom: '1rem' }}>
-            <h2 style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <h2 style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between' }}>
               <span>{dept} Division</span>
               <span className="badge badge-secondary">{deptEmployees.length} Personnel</span>
             </h2>
@@ -268,7 +268,7 @@ function EmployeeManagement() {
                     </div>
                   </form>
                 ) : (
-                  <div key={emp.id} className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div key={emp.id} className="glass-card" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <h3 style={{ margin: 0 }}>
                         {emp.name} 
@@ -404,7 +404,7 @@ function TaskManagement() {
             const compSub = t.subTasks?.filter(st => st.completed).length || 0;
             
             return (
-              <div key={t.id} className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div key={t.id} className="glass-card" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <h4 style={{ margin: 0 }}>{t.title}</h4>
@@ -529,7 +529,7 @@ function LeaveManagement() {
             {requests.map(r => {
               const emp = employees.find(e => e.id === r.userId);
               return (
-                <div key={r.id} className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div key={r.id} className="glass-card" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <h3 style={{ margin: 0 }}>{emp ? emp.name : r.userId} <span style={{fontSize: '0.9rem', fontWeight: 'normal', opacity: 0.7}}>({r.date})</span></h3>
                     <div style={{ marginTop: '0.5rem', fontStyle: 'italic', opacity: 0.9 }}>"{r.reason}"</div>
@@ -692,7 +692,7 @@ function FinancialManagement() {
             {claims.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(c => {
               const emp = employees.find(e => e.id === c.userId);
               return (
-                <div key={c.id} className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div key={c.id} className="glass-card" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <h3 style={{ margin: 0 }}>${c.amount.toFixed(2)} - {c.category}</h3>
                     <div style={{ fontSize: '0.9rem', opacity: 0.8, marginTop: '0.2rem' }}>Requested by {emp?.name || 'Unknown'} on {new Date(c.date).toLocaleDateString()}</div>

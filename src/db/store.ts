@@ -354,13 +354,20 @@ export const updateTask = (taskId: string, updates: Partial<Task>): void => {
   if (taskIndex > -1) {
     db.tasks[taskIndex] = { ...db.tasks[taskIndex], ...updates };
     saveDB(db);
+    if (db.tasks[taskIndex].assignedTo) {
+      pushNotification(db.tasks[taskIndex].assignedTo, 'Task Updated', `Admin updated task: ${db.tasks[taskIndex].title}`);
+    }
   }
 };
 
 export const deleteTask = (taskId: string): void => {
   const db = loadDB();
+  const task = db.tasks.find(t => t.id === taskId);
   db.tasks = db.tasks.filter(t => t.id !== taskId);
   saveDB(db);
+  if (task && task.assignedTo) {
+    pushNotification(task.assignedTo, 'Task Deleted', `Admin deleted task: ${task.title}`);
+  }
 };
 
 // --- ATTENDANCE & TIME TRACKING ---
@@ -402,6 +409,8 @@ export const addLeaveRequest = (userId: string, date: string, reason: string): v
   const db = loadDB();
   db.leaveRequests.push({ id: Date.now().toString(), userId, date, reason, status: 'pending' });
   saveDB(db);
+  const user = db.users.find(u => u.id === userId);
+  pushNotification('admin', 'New Leave Request', `${user?.name || 'An employee'} requested leave for ${date}`);
 };
 
 export const updateLeaveRequest = (requestId: string, status: LeaveRequest['status']): void => {
@@ -410,6 +419,7 @@ export const updateLeaveRequest = (requestId: string, status: LeaveRequest['stat
   if (requestIndex > -1) {
     db.leaveRequests[requestIndex].status = status;
     saveDB(db);
+    pushNotification(db.leaveRequests[requestIndex].userId, 'Leave Request Updated', `Your leave request was ${status}`);
   }
 };
 
@@ -429,6 +439,8 @@ export const addClaim = (userId: string, amount: number, category: string, descr
     status: 'pending'
   });
   saveDB(db);
+  const user = db.users.find(u => u.id === userId);
+  pushNotification('admin', 'New Financial Claim', `${user?.name || 'An employee'} submitted a claim for $${amount}`);
 };
 
 export const updateClaimStatus = (claimId: string, status: FinancialClaim['status']): void => {
@@ -438,6 +450,7 @@ export const updateClaimStatus = (claimId: string, status: FinancialClaim['statu
   if (index > -1) {
     db.claims[index].status = status;
     saveDB(db);
+    pushNotification(db.claims[index].userId, 'Claim Status Updated', `Your financial claim was ${status}`);
   }
 };
 
