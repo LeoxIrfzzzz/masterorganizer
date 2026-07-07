@@ -502,8 +502,10 @@ export const clockOut = (userId: string): void => {
   const existingIndex = db.attendance.findIndex(a => a.userId === userId && a.date === today);
   if (existingIndex > -1) {
     db.attendance[existingIndex].clockOut = time;
-    saveDB(db);
+  } else {
+    db.attendance.push({ id: Date.now().toString(), userId, date: today, status: 'present', clockOut: time, mood: 5 });
   }
+  saveDB(db);
 };
 
 export const markAbsent = (userId: string): void => {

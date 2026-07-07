@@ -110,7 +110,7 @@ function EmployeeHome() {
   const hasClockedIn = !!todayAttendance?.clockIn;
   const hasClockedOut = !!todayAttendance?.clockOut;
   const disablePresentAbsent = isAbsent || hasClockedIn;
-  const disableExit = isAbsent || !hasClockedIn || hasClockedOut;
+  const disableExit = hasClockedOut;
 
   return (
     <div>
