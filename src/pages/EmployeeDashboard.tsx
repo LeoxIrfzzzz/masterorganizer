@@ -9,7 +9,7 @@ import {
   addClaim, getClaims, getConnectedDevices, getNotifications, markNotificationRead,
   User, Task, LeaveRequest, ActivityLogItem, Announcement, Attendance, FinancialClaim, AppNotification
 } from '../db/store';
-import { CheckSquare, TrendingUp, Trash2, Activity, Clock, Tag, Play, Pause, RotateCcw, Pin, Smile } from 'lucide-react';
+import { CheckSquare, TrendingUp, Trash2, Activity, Clock, Tag, Play, Pause, RotateCcw, Pin, Smile, Bell } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
 function EmployeeHome() {
