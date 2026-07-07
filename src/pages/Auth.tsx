@@ -43,8 +43,14 @@ export function AdminAuth() {
   const [password, setPassword] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
 
-  const companyInfo = getCompanyInfo();
+  const [companyInfo, setCompanyInfoState] = useState(getCompanyInfo());
   const isRegistered = !!companyInfo?.name && !!companyInfo?.adminPassword;
+
+  useEffect(() => {
+    const handleUpdate = () => setCompanyInfoState(getCompanyInfo());
+    window.addEventListener('local-db-updated', handleUpdate);
+    return () => window.removeEventListener('local-db-updated', handleUpdate);
+  }, []);
 
   useEffect(() => {
     if (isRegistered) {
@@ -149,7 +155,13 @@ export function EmployeeAuth() {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const companyInfo = getCompanyInfo();
+  const [companyInfo, setCompanyInfoState] = useState(getCompanyInfo());
+
+  useEffect(() => {
+    const handleUpdate = () => setCompanyInfoState(getCompanyInfo());
+    window.addEventListener('local-db-updated', handleUpdate);
+    return () => window.removeEventListener('local-db-updated', handleUpdate);
+  }, []);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
