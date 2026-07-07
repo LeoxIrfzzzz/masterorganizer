@@ -464,6 +464,12 @@ function EmployeeSettings() {
           </p>
           <button className="btn btn-danger" onClick={handleDeleteAll} style={{ width: '100%' }}><Trash2 size={18}/> Execute Local Data Wipe</button>
         </div>
+
+        <div className="glass-panel" style={{ textAlign: 'center', marginTop: '1rem', padding: '2rem' }}>
+          <h3 style={{ color: 'var(--accent-color)', marginBottom: '0.5rem' }}>About the Developer</h3>
+          <p style={{ opacity: 0.8, marginBottom: '0.5rem' }}>Built by Mohammed Irfaan Zayn</p>
+          <p style={{ opacity: 0.8, fontSize: '0.9rem' }}>For more solutions-based softwares contact: <br/><strong style={{color: '#fff'}}>+91 6383027257</strong></p>
+        </div>
       </div>
     </div>
   );
