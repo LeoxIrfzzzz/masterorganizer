@@ -194,6 +194,14 @@ gun.get(WORKSPACE_ID).on((data: any) => {
   }
 });
 
+// Broadcast local state on startup if we have data
+setTimeout(() => {
+  const initialDb = loadDB();
+  if (initialDb.companyInfo?.name && !isSyncing) {
+    gun.get(WORKSPACE_ID).put({ state: JSON.stringify(initialDb) });
+  }
+}, 2000);
+
 export const clearDB = (): void => {
   localStorage.removeItem(DB_KEY);
   sessionStorage.removeItem(SESSION_KEY);
