@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Header from '../components/Header';
 import Chat from '../components/Chat';
 import { 
-  getCurrentUser, getTasksByUser, getAttendance, clockIn, clockOut,
+  getCurrentUser, getTasksByUser, getAttendance, clockIn, clockOut, markAbsent,
   updateTaskStatus, updateTask, addLeaveRequest, getLeaveRequests, clearDB, 
   getActivityLog, logActivity, updateUserTheme, getAnnouncements, awardBadge,
   addClaim, getClaims, getConnectedDevices, getNotifications, markNotificationRead,
@@ -82,10 +82,22 @@ function EmployeeHome() {
     if (!user) return;
     clockIn(user.id, 5); // Default mood to 5
     logActivity(`[Attendance] ${user.name} marked as Present for today.`);
+    // Trigger update
+    window.dispatchEvent(new Event('local-db-updated'));
   };
 
   const handleClockOut = () => {
-    // Deprecated for simple attendance
+    if (!user) return;
+    clockOut(user.id);
+    logActivity(`[Attendance] ${user.name} checked out early for the day.`);
+    window.dispatchEvent(new Event('local-db-updated'));
+  };
+
+  const handleMarkAbsent = () => {
+    if (!user) return;
+    markAbsent(user.id);
+    logActivity(`[Attendance] ${user.name} marked as Absent for today.`);
+    window.dispatchEvent(new Event('local-db-updated'));
   };
 
   const formatTime = (seconds: number) => {
@@ -102,19 +114,39 @@ function EmployeeHome() {
         <div className="glass-card" style={{ padding: '2rem' }}>
           <h3>Today's Attendance</h3>
           <div style={{ marginTop: '1rem' }}>
-            {todayAttendance?.clockIn ? (
-              <div style={{ color: 'var(--success-color)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <CheckSquare /> Marked Present
-                <span style={{ fontSize: '0.8rem', opacity: 0.8, color: 'var(--light-text)' }}>
-                  ({new Date(todayAttendance.clockIn).toLocaleTimeString()})
-                </span>
+            {todayAttendance?.status === 'absent' ? (
+              <div style={{ color: 'var(--danger-color)', fontWeight: 'bold' }}>
+                Marked Absent
+              </div>
+            ) : todayAttendance?.clockIn ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ color: 'var(--success-color)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <CheckSquare /> Marked Present
+                </div>
+                <div style={{ opacity: 0.8, fontSize: '0.9rem' }}>
+                  Entry Time: <strong style={{ color: '#fff' }}>{new Date(todayAttendance.clockIn).toLocaleTimeString()}</strong>
+                </div>
+                {todayAttendance.clockOut ? (
+                  <div style={{ opacity: 0.8, fontSize: '0.9rem' }}>
+                    Exit Time: <strong style={{ color: '#fff' }}>{new Date(todayAttendance.clockOut).toLocaleTimeString()}</strong>
+                  </div>
+                ) : (
+                  <button className="btn btn-secondary" style={{ marginTop: '0.5rem', width: '100%', border: '1px solid var(--warning-color)', color: 'var(--warning-color)' }} onClick={handleClockOut}>
+                    Emergency / Today Out
+                  </button>
+                )}
               </div>
             ) : (
               <div>
                 <p style={{ opacity: 0.8, marginBottom: '1rem' }}>You haven't marked your attendance for today yet.</p>
-                <button className="btn btn-primary" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }} onClick={handleClockIn}>
-                  <CheckSquare size={18} /> Mark Present
-                </button>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <button className="btn btn-primary" style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }} onClick={handleClockIn}>
+                    <CheckSquare size={18} /> Mark Present
+                  </button>
+                  <button className="btn btn-secondary" style={{ flex: 1, border: '1px solid var(--danger-color)', color: 'var(--danger-color)' }} onClick={handleMarkAbsent}>
+                    Mark Absent
+                  </button>
+                </div>
               </div>
             )}
           </div>

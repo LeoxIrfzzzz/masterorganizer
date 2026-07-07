@@ -506,6 +506,22 @@ export const clockOut = (userId: string): void => {
   }
 };
 
+export const markAbsent = (userId: string): void => {
+  const db = loadDB();
+  const today = new Date().toISOString().split('T')[0];
+  
+  const existingIndex = db.attendance.findIndex(a => a.userId === userId && a.date === today);
+  if (existingIndex > -1) {
+    db.attendance[existingIndex] = { ...db.attendance[existingIndex], status: 'absent', clockIn: undefined, clockOut: undefined };
+  } else {
+    db.attendance.push({ id: Date.now().toString(), userId, date: today, status: 'absent' });
+  }
+  saveDB(db);
+
+  const user = db.users.find(u => u.id === userId);
+  pushNotification('admin', 'Employee Absent', `${user?.name || 'An employee'} marked themselves as absent today.`);
+};
+
 // --- LEAVE REQUESTS ---
 export const getLeaveRequests = (): LeaveRequest[] => loadDB().leaveRequests;
 
