@@ -106,6 +106,12 @@ function EmployeeHome() {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  const isAbsent = todayAttendance?.status === 'absent';
+  const hasClockedIn = !!todayAttendance?.clockIn;
+  const hasClockedOut = !!todayAttendance?.clockOut;
+  const disablePresentAbsent = isAbsent || hasClockedIn;
+  const disableExit = isAbsent || !hasClockedIn || hasClockedOut;
+
   return (
     <div>
       <h1 style={{ marginBottom: '2rem' }}>Welcome back, {user?.name}</h1>
@@ -113,42 +119,59 @@ function EmployeeHome() {
       <div className="grid-3" style={{ marginBottom: '2rem' }}>
         <div className="glass-card" style={{ padding: '2rem' }}>
           <h3>Today's Attendance</h3>
-          <div style={{ marginTop: '1rem' }}>
-            {todayAttendance?.status === 'absent' ? (
-              <div style={{ color: 'var(--danger-color)', fontWeight: 'bold' }}>
-                Marked Absent
-              </div>
-            ) : todayAttendance?.clockIn ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {/* Status Display Area */}
+          <div style={{ marginTop: '1rem', minHeight: '4.5rem' }}>
+            {isAbsent && <div style={{ color: 'var(--danger-color)', fontWeight: 'bold' }}>Marked Absent</div>}
+            
+            {hasClockedIn && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
                 <div style={{ color: 'var(--success-color)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <CheckSquare /> Marked Present
+                  <CheckSquare size={16} /> Marked Present
                 </div>
                 <div style={{ opacity: 0.8, fontSize: '0.9rem' }}>
-                  Entry Time: <strong style={{ color: '#fff' }}>{new Date(todayAttendance.clockIn).toLocaleTimeString()}</strong>
+                  Entry Time: <strong style={{ color: '#fff' }}>{new Date(todayAttendance!.clockIn!).toLocaleTimeString()}</strong>
                 </div>
-                {todayAttendance.clockOut ? (
+                {hasClockedOut && (
                   <div style={{ opacity: 0.8, fontSize: '0.9rem' }}>
-                    Exit Time: <strong style={{ color: '#fff' }}>{new Date(todayAttendance.clockOut).toLocaleTimeString()}</strong>
+                    Exit Time: <strong style={{ color: '#fff' }}>{new Date(todayAttendance!.clockOut!).toLocaleTimeString()}</strong>
                   </div>
-                ) : (
-                  <button className="btn btn-secondary" style={{ marginTop: '0.5rem', width: '100%', border: '1px solid var(--warning-color)', color: 'var(--warning-color)' }} onClick={handleClockOut}>
-                    Emergency / Today Out
-                  </button>
                 )}
               </div>
-            ) : (
-              <div>
-                <p style={{ opacity: 0.8, marginBottom: '1rem' }}>You haven't marked your attendance for today yet.</p>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                  <button className="btn btn-primary" style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }} onClick={handleClockIn}>
-                    <CheckSquare size={18} /> Mark Present
-                  </button>
-                  <button className="btn btn-secondary" style={{ flex: 1, border: '1px solid var(--danger-color)', color: 'var(--danger-color)' }} onClick={handleMarkAbsent}>
-                    Mark Absent
-                  </button>
-                </div>
-              </div>
             )}
+            
+            {!isAbsent && !hasClockedIn && (
+               <p style={{ opacity: 0.8, margin: 0 }}>You haven't marked your attendance for today yet.</p>
+            )}
+          </div>
+
+          {/* Persistent Buttons Area */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginTop: '1rem', borderTop: '1px solid var(--glass-border)', paddingTop: '1rem' }}>
+            <div style={{ display: 'flex', gap: '0.8rem' }}>
+              <button 
+                className="btn btn-primary" 
+                style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', opacity: disablePresentAbsent ? 0.4 : 1, cursor: disablePresentAbsent ? 'not-allowed' : 'pointer' }} 
+                onClick={handleClockIn}
+                disabled={disablePresentAbsent}
+              >
+                <CheckSquare size={18} /> Mark Present
+              </button>
+              <button 
+                className="btn btn-secondary" 
+                style={{ flex: 1, border: '1px solid var(--danger-color)', color: 'var(--danger-color)', opacity: disablePresentAbsent ? 0.4 : 1, cursor: disablePresentAbsent ? 'not-allowed' : 'pointer' }} 
+                onClick={handleMarkAbsent}
+                disabled={disablePresentAbsent}
+              >
+                Mark Absent
+              </button>
+            </div>
+            <button 
+              className="btn btn-secondary" 
+              style={{ width: '100%', border: '1px solid var(--warning-color)', color: 'var(--warning-color)', opacity: disableExit ? 0.4 : 1, cursor: disableExit ? 'not-allowed' : 'pointer' }} 
+              onClick={handleClockOut}
+              disabled={disableExit}
+            >
+              Emergency / Today Out
+            </button>
           </div>
         </div>
         
