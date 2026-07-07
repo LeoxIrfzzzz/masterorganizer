@@ -1,6 +1,9 @@
 import Gun from 'gun/gun';
 
-const gun = Gun(['https://gun-manhattan.herokuapp.com/gun']);
+const gun = Gun([
+  'https://gun-manhattan.herokuapp.com/gun',
+  'https://relay.peer.ooo/gun'
+]);
 (window as any).gunInstance = gun;
 const WORKSPACE_ID = 'masterorganizer_sync_v2_1';
 
@@ -180,7 +183,8 @@ gun.get(WORKSPACE_ID).on((data: any) => {
     try {
       const remoteDb = JSON.parse(data.state);
       const localDb = loadDB();
-      if (remoteDb._timestamp && (!localDb._timestamp || remoteDb._timestamp > localDb._timestamp)) {
+      const isLocalEmpty = !localDb.companyInfo?.name;
+      if (remoteDb._timestamp && (isLocalEmpty || !localDb._timestamp || remoteDb._timestamp > localDb._timestamp)) {
         isSyncing = true;
         localStorage.setItem(DB_KEY, data.state);
         window.dispatchEvent(new Event('local-db-updated'));
