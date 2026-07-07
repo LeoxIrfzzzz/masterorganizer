@@ -139,7 +139,7 @@ function EmployeeHome() {
           <div style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '0.5rem 0', color: timerMode === 'Work' ? 'var(--glow-color)' : 'var(--success-color)' }}>
             {formatTime(timeLeft)}
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <button className="btn btn-secondary" onClick={() => setTimerRunning(!timerRunning)}>{timerRunning ? <Pause size={16}/> : <Play size={16}/>}</button>
             <button className="btn btn-secondary" onClick={() => {setTimerRunning(false); setTimeLeft(timerMode==='Work'? 25*60 : 5*60)}}><RotateCcw size={16}/></button>
           </div>
@@ -446,7 +446,7 @@ function EmployeeSettings() {
             
             <div className="form-group">
               <label>Accent Color (Neon Glow)</label>
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
                 <input type="color" value={themeColor} onChange={e => setThemeColor(e.target.value)} style={{ width: '50px', height: '40px', background: 'none', border: 'none', cursor: 'pointer' }} />
                 <span>{themeColor}</span>
               </div>

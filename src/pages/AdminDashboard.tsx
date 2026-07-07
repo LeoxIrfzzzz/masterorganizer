@@ -278,7 +278,7 @@ function EmployeeManagement() {
                     <input type="text" className="form-control" value={editData.department || ''} onChange={e => setEditData({...editData, department: e.target.value})} placeholder="Dept" required />
                     <input type="text" className="form-control" value={editData.username || ''} onChange={e => setEditData({...editData, username: e.target.value})} placeholder="Username" required />
                     <input type="text" className="form-control" value={editData.password || ''} onChange={e => setEditData({...editData, password: e.target.value})} placeholder="Password" required />
-                    <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                       <button type="submit" className="btn btn-primary" style={{flex: 1}}>Save</button>
                       <button type="button" className="btn" onClick={() => setEditId(null)} style={{flex: 1}}>Cancel</button>
                     </div>
@@ -299,7 +299,7 @@ function EmployeeManagement() {
                         <span>Joined: {emp.joinDate}</span>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <button className="btn btn-primary" onClick={() => setQrLoginEmployeeId(emp.id)} title="Show QR Login">QR Login</button>
                       <button className="btn btn-secondary" onClick={() => { setEditId(emp.id); setEditData(emp); }}><Edit2 size={16}/></button>
                       <button className="btn btn-danger" onClick={() => handleDelete(emp.id, emp.name || '')}><Trash2 size={16}/></button>
@@ -552,7 +552,7 @@ function LeaveManagement() {
                     <div style={{ marginTop: '0.5rem', fontStyle: 'italic', opacity: 0.9 }}>"{r.reason}"</div>
                   </div>
                   {r.status === 'pending' ? (
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <button className="btn btn-secondary" onClick={() => handleUpdateStatus(r.id, 'approved', r.reason)}>Approve</button>
                       <button className="btn btn-danger" onClick={() => handleUpdateStatus(r.id, 'disapproved', r.reason)}>Deny</button>
                     </div>
@@ -663,7 +663,7 @@ function SettingsPage() {
           <div className="glass-panel">
             <h2>Data Management</h2>
             <p style={{ opacity: 0.8, marginBottom: '1.5rem' }}>Backup your local node database to your computer, or restore a previous backup.</p>
-            <div style={{ display: 'flex', gap: '1rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <button className="btn btn-secondary" onClick={handleExport}><Download size={18}/> Export JSON Backup</button>
               <label className="btn btn-secondary" style={{ margin: 0, cursor: 'pointer' }}>
                 <Upload size={18}/> Restore Backup
@@ -771,7 +771,7 @@ function FinancialManagement() {
                     <div style={{ marginTop: '0.5rem', fontStyle: 'italic', opacity: 0.9 }}>"{c.description}"</div>
                   </div>
                   {c.status === 'pending' ? (
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <button className="btn btn-secondary" onClick={() => handleUpdate(c.id, 'approved')}>Approve</button>
                       <button className="btn btn-danger" onClick={() => handleUpdate(c.id, 'denied')}>Deny</button>
                     </div>

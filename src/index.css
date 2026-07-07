@@ -281,6 +281,35 @@ select.form-control option {
     padding: 1rem;
   }
 
+  .container {
+    padding: 1rem;
+  }
+
+  .glass-panel {
+    padding: 1rem;
+  }
+
+  .glass-card {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+  h2 {
+    font-size: 1.4rem;
+  }
+
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .form-control {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
+
   .mobile-menu-btn {
     display: flex;
   }
