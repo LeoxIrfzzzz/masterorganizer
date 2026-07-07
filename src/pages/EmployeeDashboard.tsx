@@ -6,8 +6,8 @@ import {
   getCurrentUser, getTasksByUser, getAttendance, clockIn, clockOut,
   updateTaskStatus, updateTask, addLeaveRequest, getLeaveRequests, clearDB, 
   getActivityLog, logActivity, updateUserTheme, getAnnouncements, awardBadge,
-  addClaim, getClaims, getConnectedDevices,
-  User, Task, LeaveRequest, ActivityLogItem, Announcement, Attendance, FinancialClaim
+  addClaim, getClaims, getConnectedDevices, getNotifications, markNotificationRead,
+  User, Task, LeaveRequest, ActivityLogItem, Announcement, Attendance, FinancialClaim, AppNotification
 } from '../db/store';
 import { CheckSquare, TrendingUp, Trash2, Activity, Clock, Tag, Play, Pause, RotateCcw, Pin, Smile } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
@@ -500,10 +500,17 @@ function EmployeeSettings() {
 
 export default function EmployeeDashboard() {
   const [activities, setActivities] = useState<ActivityLogItem[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [isLogsOpen, setIsLogsOpen] = useState(false);
   
   useEffect(() => {
-    const loadAct = () => setActivities(getActivityLog().slice(0, 15));
+    const loadAct = () => {
+      setActivities(getActivityLog().slice(0, 15));
+      const user = getCurrentUser();
+      if (user) {
+        setNotifications(getNotifications().filter(n => n.userId === user.id).sort((a,b) => b.timestamp - a.timestamp));
+      }
+    };
     loadAct();
     window.addEventListener('local-db-updated', loadAct);
     return () => window.removeEventListener('local-db-updated', loadAct);
@@ -525,23 +532,24 @@ export default function EmployeeDashboard() {
           </Routes>
         </div>
 
-        {/* Collapsible Global Notifications Panel */}
-        <div style={{ 
-          position: 'absolute', top: 0, right: 0, bottom: 0, width: '300px', 
-          background: 'var(--glass-bg)', backdropFilter: 'blur(30px)', borderLeft: '1px solid var(--glass-border)',
-          transform: isLogsOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.3s ease',
-          display: 'flex', flexDirection: 'column', padding: '2rem', zIndex: 10, boxShadow: '-5px 0 30px rgba(0,0,0,0.5)'
-        }}>
-          <h3 style={{ margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Activity size={18}/> Live Network Feed</h3>
-          <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-            {activities.length === 0 ? <p style={{ fontSize: '0.9rem' }}>No recent network activity.</p> : activities.map(log => (
-              <div key={log.id} style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.02)', borderLeft: '2px solid var(--accent-color)', borderRadius: '4px' }}>
-                <div style={{ fontSize: '0.85rem' }}>{log.text}</div>
-                <div style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '0.3rem' }}>{new Date(log.timestamp).toLocaleTimeString()}</div>
-              </div>
-            ))}
-          </div>
+      {/* Collapsible Global Notifications Panel */}
+      <div style={{ 
+        position: 'absolute', top: 0, right: 0, bottom: 0, width: '100%', maxWidth: '300px', 
+        background: 'var(--glass-bg)', backdropFilter: 'blur(30px)', borderLeft: '1px solid var(--glass-border)',
+        transform: isLogsOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.3s ease',
+        display: 'flex', flexDirection: 'column', padding: '2rem', zIndex: 10, boxShadow: '-5px 0 30px rgba(0,0,0,0.5)'
+      }}>
+        <h3 style={{ margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Bell size={18}/> My Notifications</h3>
+        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+          {notifications.length === 0 ? <p style={{ fontSize: '0.9rem' }}>No new notifications.</p> : notifications.map(notif => (
+            <div key={notif.id} style={{ padding: '0.8rem', background: notif.read ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.1)', borderLeft: '2px solid var(--accent-color)', borderRadius: '4px', cursor: 'pointer' }} onClick={() => markNotificationRead(notif.id)}>
+              <div style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>{notif.title}</div>
+              <div style={{ fontSize: '0.8rem', opacity: 0.8, marginTop: '0.2rem' }}>{notif.message}</div>
+              <div style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '0.4rem' }}>{new Date(notif.timestamp).toLocaleTimeString()}</div>
+            </div>
+          ))}
         </div>
+      </div>
       </div>
     </div>
   );

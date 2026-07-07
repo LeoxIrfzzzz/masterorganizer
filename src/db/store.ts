@@ -57,6 +57,7 @@ export const connectToPeer = (targetPeerId: string, onConnected?: () => void, on
   if (!peer) initPeer();
   
   const connect = () => {
+    localStorage.setItem('masterorganizer_admin_peer', targetPeerId);
     const conn = peer!.connect(targetPeerId);
     setupConnection(conn, onSyncComplete);
     const triggerConnected = () => { if (onConnected) onConnected(); };
@@ -68,6 +69,18 @@ export const connectToPeer = (targetPeerId: string, onConnected?: () => void, on
     peer!.on('open', connect);
   } else {
     connect();
+  }
+};
+
+export const autoReconnect = () => {
+  const adminPeerId = localStorage.getItem('masterorganizer_admin_peer');
+  const user = getCurrentUser();
+  // Only employees need to auto-connect to the admin peer on page load
+  if (adminPeerId && user && user.role === 'employee') {
+    if (activeConnections.length === 0) {
+      console.log('Auto-reconnecting to admin node:', adminPeerId);
+      connectToPeer(adminPeerId);
+    }
   }
 };
 
@@ -251,7 +264,7 @@ export const saveDB = (db: Database): void => {
 
 export const clearDB = (): void => {
   localStorage.removeItem(DB_KEY);
-  sessionStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(SESSION_KEY);
   window.dispatchEvent(new Event('local-db-updated'));
   window.location.href = '/';
 };
@@ -282,15 +295,15 @@ export const importDB = (jsonString: string): boolean => {
 
 // --- AUTH (Session Storage) ---
 export const getCurrentUser = (): User | null => {
-  const data = sessionStorage.getItem(SESSION_KEY);
+  const data = localStorage.getItem(SESSION_KEY);
   return data ? JSON.parse(data) : null;
 };
 
 export const setCurrentUser = (user: User | null): void => {
   if (user) {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(user));
+    localStorage.setItem(SESSION_KEY, JSON.stringify(user));
   } else {
-    sessionStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(SESSION_KEY);
   }
   window.dispatchEvent(new Event('local-db-updated'));
 };

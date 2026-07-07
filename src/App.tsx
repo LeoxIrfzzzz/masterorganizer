@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LandingPage, AdminAuth, EmployeeAuth, LinkDevicePage } from './pages/Auth';
 import AdminDashboard from './pages/AdminDashboard';
 import EmployeeDashboard from './pages/EmployeeDashboard';
-import { getCurrentUser, getNotifications, markNotificationRead, registerDevicePresence } from './db/store';
+import { getCurrentUser, getNotifications, markNotificationRead, registerDevicePresence, autoReconnect } from './db/store';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -25,6 +25,8 @@ function App() {
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
+
+    autoReconnect();
 
     const handleDBUpdate = () => {
       // 1. Apply Theme
