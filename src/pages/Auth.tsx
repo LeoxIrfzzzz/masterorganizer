@@ -5,6 +5,15 @@ import { Shield, Users, ArrowRight, Link as LinkIcon, Camera } from 'lucide-reac
 import { Scanner } from '@yudiel/react-qr-scanner';
 
 export function LandingPage() {
+  const navigate = useNavigate();
+  const user = getCurrentUser();
+  
+  useEffect(() => {
+    if (user) {
+      navigate(user.role === 'admin' ? '/admin' : '/employee', { replace: true });
+    }
+  }, [user, navigate]);
+
   return (
     <div className="landing-container">
       <h1 style={{ fontSize: 'clamp(1.5rem, 7vw, 4rem)', marginBottom: '0.5rem', animation: 'fadeInDown 1s' }}>MASTER<span style={{color: 'var(--accent-color)'}}>ORGANIZER</span></h1>
@@ -69,11 +78,11 @@ export function LinkDevicePage() {
           const emp = users.find(u => u.id === autoLoginEmployeeId);
           if (emp) {
             setCurrentUser(emp);
-            navigate('/employee');
+            navigate('/employee', { replace: true });
             return;
           }
         }
-        setTimeout(() => navigate('/admin-login'), 1000);
+        setTimeout(() => navigate('/admin-login', { replace: true }), 1000);
       }
     );
   };
@@ -163,7 +172,7 @@ export function AdminAuth() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (verifyAdminLogin(loginPassword)) {
-      navigate('/admin');
+      navigate('/admin', { replace: true });
     } else {
       alert('Incorrect Admin Password');
     }
@@ -245,7 +254,7 @@ export function EmployeeAuth() {
     e.preventDefault();
     const user = loginEmployee(username, password);
     if (user) {
-      navigate('/employee');
+      navigate('/employee', { replace: true });
     } else {
       alert('Invalid username or password');
     }

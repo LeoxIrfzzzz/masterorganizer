@@ -80,14 +80,12 @@ function EmployeeHome() {
 
   const handleClockIn = () => {
     if (!user) return;
-    clockIn(user.id, mood);
-    logActivity(`[Time] ${user.name} clocked in for the day. (Mood: ${mood}/5)`);
+    clockIn(user.id, 5); // Default mood to 5
+    logActivity(`[Attendance] ${user.name} marked as Present for today.`);
   };
 
   const handleClockOut = () => {
-    if (!user) return;
-    clockOut(user.id);
-    logActivity(`[Time] ${user.name} clocked out.`);
+    // Deprecated for simple attendance
   };
 
   const formatTime = (seconds: number) => {
@@ -102,25 +100,21 @@ function EmployeeHome() {
       
       <div className="grid-3" style={{ marginBottom: '2rem' }}>
         <div className="glass-card" style={{ padding: '2rem' }}>
-          <h3>Time Tracking</h3>
+          <h3>Today's Attendance</h3>
           <div style={{ marginTop: '1rem' }}>
             {todayAttendance?.clockIn ? (
-              <div style={{ color: 'var(--success-color)', fontWeight: 'bold' }}>
-                <CheckSquare /> Clocked In at {new Date(todayAttendance.clockIn).toLocaleTimeString()}
-                {!todayAttendance.clockOut && (
-                  <button className="btn btn-secondary" style={{ marginTop: '1rem', width: '100%' }} onClick={handleClockOut}>Clock Out</button>
-                )}
-                {todayAttendance.clockOut && (
-                  <div style={{ marginTop: '0.5rem', opacity: 0.8 }}>Clocked Out: {new Date(todayAttendance.clockOut).toLocaleTimeString()}</div>
-                )}
+              <div style={{ color: 'var(--success-color)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <CheckSquare /> Marked Present
+                <span style={{ fontSize: '0.8rem', opacity: 0.8, color: 'var(--light-text)' }}>
+                  ({new Date(todayAttendance.clockIn).toLocaleTimeString()})
+                </span>
               </div>
             ) : (
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                  <Smile size={18}/> Mood (1-5): 
-                  <input type="range" min="1" max="5" value={mood} onChange={e=>setMood(Number(e.target.value))} /> {mood}
-                </div>
-                <button className="btn btn-primary" style={{ width: '100%' }} onClick={handleClockIn}>Clock In</button>
+                <p style={{ opacity: 0.8, marginBottom: '1rem' }}>You haven't marked your attendance for today yet.</p>
+                <button className="btn btn-primary" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }} onClick={handleClockIn}>
+                  <CheckSquare size={18} /> Mark Present
+                </button>
               </div>
             )}
           </div>
