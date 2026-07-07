@@ -7,8 +7,9 @@ import {
   updateLeaveRequest, getCompanyInfo, setCompanyInfo, clearDB, exportDB, importDB,
   updateUser, deleteUser, deleteTask, logActivity, getActivityLog, updateUserTheme,
   getAnnouncements, addAnnouncement, getClaims, updateClaimStatus, getConnectedDevices,
-  User, Task, Attendance, LeaveRequest, ActivityLogItem, Announcement, FinancialClaim
+  getPeerId, initPeer, User, Task, Attendance, LeaveRequest, ActivityLogItem, Announcement, FinancialClaim
 } from '../db/store';
+import { QRCodeSVG } from 'qrcode.react';
 import { Users, CheckCircle, AlertCircle, Trash2, Edit2, Activity, Award, Briefcase, Tag, Download, Upload, Pin } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
@@ -555,14 +556,23 @@ function LeaveManagement() {
 function SettingsPage() {
   const [companyInfo, setInfo] = useState({ name: '', email: '', adminPassword: '', themeColor: '#ffffff', isLightMode: false });
   const [devices, setDevices] = useState<any[]>([]);
+  const [peerId, setPeerIdState] = useState<string | null>(getPeerId() || null);
 
   useEffect(() => {
     const info = getCompanyInfo();
     if (info) setInfo({ name: info.name || '', email: info.email || '', adminPassword: info.adminPassword || '', themeColor: info.themeColor || '#ffffff', isLightMode: !!info.isLightMode });
     
-    getConnectedDevices((devs) => {
-      setDevices(devs);
-    });
+    // Poll for devices every second instead of one-shot callback
+    const interval = setInterval(() => {
+      getConnectedDevices((devs) => {
+        setDevices(devs);
+      });
+    }, 1000);
+
+    initPeer((id) => setPeerIdState(id));
+    if (getPeerId()) setPeerIdState(getPeerId()!);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleSave = (e: React.FormEvent) => {
@@ -643,6 +653,25 @@ function SettingsPage() {
                 <Upload size={18}/> Restore Backup
                 <input type="file" accept=".json" style={{ display: 'none' }} onChange={handleImport} />
               </label>
+            </div>
+          </div>
+
+          <div className="glass-panel">
+            <h2>Pair Mobile Device</h2>
+            <p style={{ opacity: 0.8, marginBottom: '1.5rem' }}>Scan this QR code from the Landing Page on your mobile device to establish a direct WebRTC connection and sync your entire workspace.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', background: 'rgba(255,255,255,0.1)', padding: '2rem', borderRadius: '1rem' }}>
+              {peerId ? (
+                <>
+                  <div style={{ background: 'white', padding: '1rem', borderRadius: '0.5rem' }}>
+                    <QRCodeSVG value={peerId} size={200} />
+                  </div>
+                  <code style={{ background: 'rgba(0,0,0,0.5)', padding: '0.5rem 1rem', borderRadius: '0.5rem', letterSpacing: '2px' }}>
+                    {peerId}
+                  </code>
+                </>
+              ) : (
+                <p>Initializing PeerJS networking...</p>
+              )}
             </div>
           </div>
 

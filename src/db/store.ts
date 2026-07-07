@@ -1,11 +1,65 @@
-import Gun from 'gun/gun';
+import Peer, { DataConnection } from 'peerjs';
 
-const gun = Gun([
-  'https://gun-manhattan.herokuapp.com/gun',
-  'https://relay.peer.ooo/gun'
-]);
-(window as any).gunInstance = gun;
-const WORKSPACE_ID = 'masterorganizer_sync_v2_1';
+// Global PeerJS Instance
+let peer: Peer | null = null;
+let activeConnections: DataConnection[] = [];
+
+// Initialize PeerJS
+export const initPeer = (onIdGenerated?: (id: string) => void) => {
+  if (peer) return peer;
+  peer = new Peer();
+  
+  peer.on('open', (id) => {
+    if (onIdGenerated) onIdGenerated(id);
+  });
+
+  peer.on('connection', (conn) => {
+    setupConnection(conn);
+    // Send our database to the newly connected peer
+    conn.on('open', () => {
+      conn.send({ type: 'SYNC_DB', state: JSON.stringify(loadDB()) });
+    });
+  });
+
+  return peer;
+};
+
+const setupConnection = (conn: DataConnection) => {
+  activeConnections.push(conn);
+  
+  conn.on('data', (data: any) => {
+    if (data && data.type === 'SYNC_DB' && data.state) {
+      try {
+        const remoteDb = JSON.parse(data.state);
+        const localDb = loadDB();
+        const isLocalEmpty = !localDb.companyInfo?.name;
+        
+        if (remoteDb._timestamp && (isLocalEmpty || !localDb._timestamp || remoteDb._timestamp > localDb._timestamp)) {
+          isSyncing = true;
+          localStorage.setItem('masterorganizer_db', data.state);
+          window.dispatchEvent(new Event('local-db-updated'));
+          isSyncing = false;
+        }
+      } catch(e) {}
+    }
+  });
+
+  conn.on('close', () => {
+    activeConnections = activeConnections.filter(c => c !== conn);
+  });
+};
+
+export const connectToPeer = (targetPeerId: string, onConnected?: () => void) => {
+  if (!peer) initPeer();
+  const conn = peer!.connect(targetPeerId);
+  setupConnection(conn);
+  conn.on('open', () => {
+    if (onConnected) onConnected();
+  });
+};
+
+export const getPeerId = () => peer?.id;
+
 
 export interface User {
   id: string;
@@ -173,34 +227,14 @@ export const saveDB = (db: Database): void => {
   window.dispatchEvent(new Event('local-db-updated'));
   
   if (!isSyncing) {
-    gun.get(WORKSPACE_ID).put({ state: dbString });
+    // Broadcast to all connected peers
+    activeConnections.forEach(conn => {
+      if (conn.open) {
+        conn.send({ type: 'SYNC_DB', state: dbString });
+      }
+    });
   }
 };
-
-// Listen for P2P network changes
-gun.get(WORKSPACE_ID).on((data: any) => {
-  if (data && data.state) {
-    try {
-      const remoteDb = JSON.parse(data.state);
-      const localDb = loadDB();
-      const isLocalEmpty = !localDb.companyInfo?.name;
-      if (remoteDb._timestamp && (isLocalEmpty || !localDb._timestamp || remoteDb._timestamp > localDb._timestamp)) {
-        isSyncing = true;
-        localStorage.setItem(DB_KEY, data.state);
-        window.dispatchEvent(new Event('local-db-updated'));
-        isSyncing = false;
-      }
-    } catch(e) {}
-  }
-});
-
-// Broadcast local state on startup if we have data
-setTimeout(() => {
-  const initialDb = loadDB();
-  if (initialDb.companyInfo?.name && !isSyncing) {
-    gun.get(WORKSPACE_ID).put({ state: JSON.stringify(initialDb) });
-  }
-}, 2000);
 
 export const clearDB = (): void => {
   localStorage.removeItem(DB_KEY);
@@ -560,50 +594,17 @@ export interface ConnectedDevice {
   user: string;
 }
 
-const DEVICE_ID_KEY = 'masterorganizer_device_id';
-const getDeviceId = () => {
-  let id = localStorage.getItem(DEVICE_ID_KEY);
-  if (!id) {
-    id = 'device_' + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem(DEVICE_ID_KEY, id);
-  }
-  return id;
-};
-
 export const registerDevicePresence = () => {
-  const user = getCurrentUser();
-  if (!user) return;
-  const device: ConnectedDevice = {
-    id: getDeviceId(),
-    userAgent: navigator.userAgent,
-    lastActive: Date.now(),
-    user: user.name || 'Unknown'
-  };
-  const WORKSPACE_ID = 'masterorganizer_sync_v2_1';
-  // Note: we need gun exposed from earlier in store.ts. It's declared at top, so it is in scope.
-  const gun = (window as any).gunInstance;
-  if (gun) {
-    gun.get(WORKSPACE_ID + '_devices').get(device.id).put(JSON.stringify(device));
-  }
+  // Deprecated in favor of direct PeerJS active connections
 };
 
 export const getConnectedDevices = (callback: (devices: ConnectedDevice[]) => void) => {
-  const devicesMap = new Map<string, ConnectedDevice>();
-  const WORKSPACE_ID = 'masterorganizer_sync_v2_1';
-  const gun = (window as any).gunInstance;
-  if (gun) {
-    gun.get(WORKSPACE_ID + '_devices').map().on((data: any, id: string) => {
-      if (data) {
-        try {
-          const device = JSON.parse(data);
-          if (Date.now() - device.lastActive < 10 * 60 * 1000) {
-            devicesMap.set(id, device);
-          } else {
-            devicesMap.delete(id);
-          }
-          callback(Array.from(devicesMap.values()));
-        } catch(e){}
-      }
-    });
-  }
+  // Use PeerJS active connections
+  const devices = activeConnections.map(c => ({
+    id: c.peer,
+    userAgent: 'WebRTC Peer',
+    lastActive: Date.now(),
+    user: c.peer
+  }));
+  callback(devices);
 };

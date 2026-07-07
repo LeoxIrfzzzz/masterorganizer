@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { getCompanyInfo, setCompanyInfo, verifyAdminLogin, loginEmployee } from '../db/store';
-import { Shield, Users, ArrowRight } from 'lucide-react';
+import { getCompanyInfo, setCompanyInfo, verifyAdminLogin, loginEmployee, connectToPeer } from '../db/store';
+import { Shield, Users, ArrowRight, Link as LinkIcon, Camera } from 'lucide-react';
+import { Scanner } from '@yudiel/react-qr-scanner';
 
 export function LandingPage() {
   return (
@@ -27,6 +28,60 @@ export function LandingPage() {
             <div className="btn btn-primary" style={{ marginTop: '1rem' }}>Enter <ArrowRight size={16}/></div>
           </div>
         </Link>
+      </div>
+
+      <div style={{ marginTop: '3rem', textAlign: 'center' }}>
+        <h3 style={{ marginBottom: '1rem', fontWeight: 300 }}>Want to sync an existing workspace?</h3>
+        <Link to="/link-device" style={{ textDecoration: 'none' }}>
+          <div className="btn btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <LinkIcon size={18}/> Link New Device (QR Code)
+          </div>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+export function LinkDevicePage() {
+  const navigate = useNavigate();
+  const [manualId, setManualId] = useState('');
+  const [connecting, setConnecting] = useState(false);
+
+  const handleConnect = (id: string) => {
+    setConnecting(true);
+    connectToPeer(id, () => {
+      // Once connected, wait for data sync then redirect
+      setTimeout(() => navigate('/admin-login'), 1500);
+    });
+  };
+
+  return (
+    <div className="landing-container">
+      <div className="glass-card" style={{ maxWidth: '400px', width: '100%', padding: '2rem' }}>
+        <h2><Camera size={24} style={{ marginRight: '0.5rem', verticalAlign: 'middle' }}/> Scan Pairing Code</h2>
+        <p style={{ opacity: 0.8, marginBottom: '2rem' }}>Scan the QR code shown in the Admin Settings of your main device.</p>
+        
+        {connecting ? (
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            <div className="spinner" style={{ margin: '0 auto 1rem auto' }}></div>
+            <p>Establishing secure WebRTC tunnel...</p>
+          </div>
+        ) : (
+          <>
+            <div style={{ borderRadius: '1rem', overflow: 'hidden', marginBottom: '2rem' }}>
+              <Scanner onScan={(result) => handleConnect(result[0].rawValue)} />
+            </div>
+            <div style={{ textAlign: 'center', margin: '1rem 0' }}>OR</div>
+            <div className="form-group">
+              <label>Enter Connection Code Manually</label>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <input type="text" value={manualId} onChange={e => setManualId(e.target.value)} placeholder="Peer ID..." />
+                <button className="btn btn-primary" onClick={() => handleConnect(manualId)}>Connect</button>
+              </div>
+            </div>
+          </>
+        )}
+        <button className="btn btn-secondary" style={{ width: '100%', marginTop: '1rem' }} onClick={() => navigate('/')}>Cancel</button>
       </div>
     </div>
   );

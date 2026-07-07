@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { LandingPage, AdminAuth, EmployeeAuth } from './pages/Auth';
+import { LandingPage, AdminAuth, EmployeeAuth, LinkDevicePage } from './pages/Auth';
 import AdminDashboard from './pages/AdminDashboard';
 import EmployeeDashboard from './pages/EmployeeDashboard';
 import { getCurrentUser, getNotifications, markNotificationRead, registerDevicePresence } from './db/store';
@@ -67,6 +67,7 @@ function App() {
         <div style={{ flex: 1 }}>
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/link-device" element={<LinkDevicePage />} />
             <Route path="/admin-login" element={<AdminAuth />} />
             <Route path="/employee-login" element={<EmployeeAuth />} />
             
