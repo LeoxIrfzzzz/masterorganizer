@@ -146,6 +146,28 @@ function EmployeeHome() {
 
           {/* Persistent Buttons Area */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginTop: '1rem', borderTop: '1px solid var(--glass-border)', paddingTop: '1rem' }}>
+            
+            {/* Row 1: Entry and Exit */}
+            <div style={{ display: 'flex', gap: '0.8rem' }}>
+              <button 
+                className="btn btn-primary" 
+                style={{ flex: 1, opacity: disablePresentAbsent ? 0.4 : 1, cursor: disablePresentAbsent ? 'not-allowed' : 'pointer' }} 
+                onClick={handleClockIn}
+                disabled={disablePresentAbsent}
+              >
+                Entry
+              </button>
+              <button 
+                className="btn btn-secondary" 
+                style={{ flex: 1, border: '1px solid var(--danger-color)', color: 'var(--danger-color)', opacity: disableExit ? 0.4 : 1, cursor: disableExit ? 'not-allowed' : 'pointer' }} 
+                onClick={handleClockOut}
+                disabled={disableExit}
+              >
+                Exit
+              </button>
+            </div>
+
+            {/* Row 2: Present and Absent */}
             <div style={{ display: 'flex', gap: '0.8rem' }}>
               <button 
                 className="btn btn-primary" 
@@ -153,7 +175,7 @@ function EmployeeHome() {
                 onClick={handleClockIn}
                 disabled={disablePresentAbsent}
               >
-                <CheckSquare size={18} /> Mark Present
+                <CheckSquare size={18} /> Present
               </button>
               <button 
                 className="btn btn-secondary" 
@@ -161,9 +183,11 @@ function EmployeeHome() {
                 onClick={handleMarkAbsent}
                 disabled={disablePresentAbsent}
               >
-                Mark Absent
+                Absent
               </button>
             </div>
+
+            {/* Row 3: Emergency / Today Out */}
             <button 
               className="btn btn-secondary" 
               style={{ width: '100%', border: '1px solid var(--warning-color)', color: 'var(--warning-color)', opacity: disableExit ? 0.4 : 1, cursor: disableExit ? 'not-allowed' : 'pointer' }} 
