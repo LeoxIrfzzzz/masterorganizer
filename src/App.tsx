@@ -19,6 +19,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRole }
   return <>{children}</>;
 };
 
+import ErrorBoundary from './components/ErrorBoundary';
+
 function App() {
   React.useEffect(() => {
     // Request notification permission on mount
@@ -64,35 +66,37 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <div style={{ flex: 1 }}>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/link-device" element={<LinkDevicePage />} />
-            <Route path="/admin-login" element={<AdminAuth />} />
-            <Route path="/employee-login" element={<EmployeeAuth />} />
-            
-            <Route path="/admin/*" element={
-              <ProtectedRoute allowedRole="admin">
-                <AdminDashboard />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/employee/*" element={
-              <ProtectedRoute allowedRole="employee">
-                <EmployeeDashboard />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          <div style={{ flex: 1 }}>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/link-device" element={<LinkDevicePage />} />
+              <Route path="/admin-login" element={<AdminAuth />} />
+              <Route path="/employee-login" element={<EmployeeAuth />} />
+              
+              <Route path="/admin/*" element={
+                <ProtectedRoute allowedRole="admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/employee/*" element={
+                <ProtectedRoute allowedRole="employee">
+                  <EmployeeDashboard />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
+          <footer style={{ textAlign: 'center', padding: '1rem', fontSize: '0.8rem', opacity: 0.5, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            Built by Mohammed Irfaan Zayn
+          </footer>
         </div>
-        <footer style={{ textAlign: 'center', padding: '1rem', fontSize: '0.8rem', opacity: 0.5, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-          Built by Mohammed Irfaan Zayn
-        </footer>
-      </div>
-    </BrowserRouter>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

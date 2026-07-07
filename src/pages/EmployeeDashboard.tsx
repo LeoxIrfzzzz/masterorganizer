@@ -508,7 +508,7 @@ export default function EmployeeDashboard() {
       setActivities(getActivityLog().slice(0, 15));
       const user = getCurrentUser();
       if (user) {
-        setNotifications(getNotifications().filter(n => n.userId === user.id).sort((a,b) => b.timestamp - a.timestamp));
+        setNotifications(getNotifications().filter(n => n.targetUserId === user.id).sort((a,b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
       }
     };
     loadAct();
@@ -544,7 +544,7 @@ export default function EmployeeDashboard() {
           {notifications.length === 0 ? <p style={{ fontSize: '0.9rem' }}>No new notifications.</p> : notifications.map(notif => (
             <div key={notif.id} style={{ padding: '0.8rem', background: notif.read ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.1)', borderLeft: '2px solid var(--accent-color)', borderRadius: '4px', cursor: 'pointer' }} onClick={() => markNotificationRead(notif.id)}>
               <div style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>{notif.title}</div>
-              <div style={{ fontSize: '0.8rem', opacity: 0.8, marginTop: '0.2rem' }}>{notif.message}</div>
+              <div style={{ fontSize: '0.8rem', opacity: 0.8, marginTop: '0.2rem' }}>{notif.body}</div>
               <div style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '0.4rem' }}>{new Date(notif.timestamp).toLocaleTimeString()}</div>
             </div>
           ))}
