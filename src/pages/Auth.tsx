@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { getCompanyInfo, setCompanyInfo, verifyAdminLogin, loginEmployee, connectToPeer, getUsers, setCurrentUser } from '../db/store';
+import { getCompanyInfo, setCompanyInfo, verifyAdminLogin, loginEmployee, connectToPeer, getUsers, setCurrentUser, getCurrentUser } from '../db/store';
 import { Shield, Users, ArrowRight, Link as LinkIcon, Camera } from 'lucide-react';
 import { Scanner } from '@yudiel/react-qr-scanner';
 
