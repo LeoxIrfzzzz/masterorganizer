@@ -6,7 +6,7 @@ import {
   getUsers, getAttendance, getTasks, getLeaveRequests, addUser, addTask, 
   updateLeaveRequest, getCompanyInfo, setCompanyInfo, clearDB, exportDB, importDB,
   updateUser, deleteUser, deleteTask, logActivity, getActivityLog, updateUserTheme,
-  getAnnouncements, addAnnouncement, getClaims, updateClaimStatus,
+  getAnnouncements, addAnnouncement, getClaims, updateClaimStatus, getConnectedDevices,
   User, Task, Attendance, LeaveRequest, ActivityLogItem, Announcement, FinancialClaim
 } from '../db/store';
 import { Users, CheckCircle, AlertCircle, Trash2, Edit2, Activity, Award, Briefcase, Tag, Download, Upload, Pin } from 'lucide-react';
@@ -554,10 +554,15 @@ function LeaveManagement() {
 
 function SettingsPage() {
   const [companyInfo, setInfo] = useState({ name: '', email: '', adminPassword: '', themeColor: '#ffffff', isLightMode: false });
+  const [devices, setDevices] = useState<any[]>([]);
 
   useEffect(() => {
     const info = getCompanyInfo();
     if (info) setInfo({ name: info.name || '', email: info.email || '', adminPassword: info.adminPassword || '', themeColor: info.themeColor || '#ffffff', isLightMode: !!info.isLightMode });
+    
+    getConnectedDevices((devs) => {
+      setDevices(devs);
+    });
   }, []);
 
   const handleSave = (e: React.FormEvent) => {
@@ -638,6 +643,22 @@ function SettingsPage() {
                 <Upload size={18}/> Restore Backup
                 <input type="file" accept=".json" style={{ display: 'none' }} onChange={handleImport} />
               </label>
+            </div>
+          </div>
+
+          <div className="glass-panel">
+            <h2>Connected Devices (P2P Network)</h2>
+            <p style={{ opacity: 0.8, marginBottom: '1.5rem' }}>Active nodes connected to this decentralized workspace.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {devices.length === 0 ? <p>Scanning P2P network...</p> : devices.map(d => (
+                <div key={d.id} className="glass-card" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h4 style={{ margin: 0 }}>{d.user}</h4>
+                    <div style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: '0.2rem' }}>{d.userAgent.substring(0, 50)}...</div>
+                  </div>
+                  <span className="badge badge-success">Online ({Math.floor((Date.now() - d.lastActive)/1000)}s ago)</span>
+                </div>
+              ))}
             </div>
           </div>
 

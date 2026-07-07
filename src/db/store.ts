@@ -1,3 +1,9 @@
+import Gun from 'gun/gun';
+
+const gun = Gun(['https://gun-manhattan.herokuapp.com/gun']);
+(window as any).gunInstance = gun;
+const WORKSPACE_ID = 'masterorganizer_sync_v2_1';
+
 export interface User {
   id: string;
   name?: string;
@@ -99,6 +105,7 @@ export interface CompanyInfo {
 }
 
 export interface Database {
+  _timestamp?: number;
   users: User[];
   tasks: Task[];
   attendance: Attendance[];
@@ -115,6 +122,7 @@ const DB_KEY = 'masterorganizer_db';
 const SESSION_KEY = 'masterorganizer_session';
 
 const getInitialDB = (): Database => ({
+  _timestamp: Date.now(),
   users: [],
   tasks: [],
   attendance: [],
@@ -153,10 +161,34 @@ export const loadDB = (): Database => {
   return getInitialDB();
 };
 
+let isSyncing = false;
+
 export const saveDB = (db: Database): void => {
-  localStorage.setItem(DB_KEY, JSON.stringify(db));
+  db._timestamp = Date.now();
+  const dbString = JSON.stringify(db);
+  localStorage.setItem(DB_KEY, dbString);
   window.dispatchEvent(new Event('local-db-updated'));
+  
+  if (!isSyncing) {
+    gun.get(WORKSPACE_ID).put({ state: dbString });
+  }
 };
+
+// Listen for P2P network changes
+gun.get(WORKSPACE_ID).on((data: any) => {
+  if (data && data.state) {
+    try {
+      const remoteDb = JSON.parse(data.state);
+      const localDb = loadDB();
+      if (remoteDb._timestamp && (!localDb._timestamp || remoteDb._timestamp > localDb._timestamp)) {
+        isSyncing = true;
+        localStorage.setItem(DB_KEY, data.state);
+        window.dispatchEvent(new Event('local-db-updated'));
+        isSyncing = false;
+      }
+    } catch(e) {}
+  }
+});
 
 export const clearDB = (): void => {
   localStorage.removeItem(DB_KEY);
@@ -505,5 +537,61 @@ export const markNotificationRead = (notificationId: string): void => {
   if (idx > -1) {
     db.notifications[idx].read = true;
     saveDB(db);
+  }
+};
+
+// --- P2P DEVICE TRACKING ---
+export interface ConnectedDevice {
+  id: string;
+  userAgent: string;
+  lastActive: number;
+  user: string;
+}
+
+const DEVICE_ID_KEY = 'masterorganizer_device_id';
+const getDeviceId = () => {
+  let id = localStorage.getItem(DEVICE_ID_KEY);
+  if (!id) {
+    id = 'device_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem(DEVICE_ID_KEY, id);
+  }
+  return id;
+};
+
+export const registerDevicePresence = () => {
+  const user = getCurrentUser();
+  if (!user) return;
+  const device: ConnectedDevice = {
+    id: getDeviceId(),
+    userAgent: navigator.userAgent,
+    lastActive: Date.now(),
+    user: user.name || 'Unknown'
+  };
+  const WORKSPACE_ID = 'masterorganizer_sync_v2_1';
+  // Note: we need gun exposed from earlier in store.ts. It's declared at top, so it is in scope.
+  const gun = (window as any).gunInstance;
+  if (gun) {
+    gun.get(WORKSPACE_ID + '_devices').get(device.id).put(JSON.stringify(device));
+  }
+};
+
+export const getConnectedDevices = (callback: (devices: ConnectedDevice[]) => void) => {
+  const devicesMap = new Map<string, ConnectedDevice>();
+  const WORKSPACE_ID = 'masterorganizer_sync_v2_1';
+  const gun = (window as any).gunInstance;
+  if (gun) {
+    gun.get(WORKSPACE_ID + '_devices').map().on((data: any, id: string) => {
+      if (data) {
+        try {
+          const device = JSON.parse(data);
+          if (Date.now() - device.lastActive < 10 * 60 * 1000) {
+            devicesMap.set(id, device);
+          } else {
+            devicesMap.delete(id);
+          }
+          callback(Array.from(devicesMap.values()));
+        } catch(e){}
+      }
+    });
   }
 };

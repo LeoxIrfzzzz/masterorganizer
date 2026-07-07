@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LandingPage, AdminAuth, EmployeeAuth } from './pages/Auth';
 import AdminDashboard from './pages/AdminDashboard';
 import EmployeeDashboard from './pages/EmployeeDashboard';
-import { getCurrentUser, getNotifications, markNotificationRead } from './db/store';
+import { getCurrentUser, getNotifications, markNotificationRead, registerDevicePresence } from './db/store';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -50,7 +50,15 @@ function App() {
 
     handleDBUpdate();
     window.addEventListener('local-db-updated', handleDBUpdate);
-    return () => window.removeEventListener('local-db-updated', handleDBUpdate);
+    
+    // Ping P2P presence every 10 seconds
+    registerDevicePresence();
+    const presenceInterval = setInterval(registerDevicePresence, 10000);
+
+    return () => {
+      window.removeEventListener('local-db-updated', handleDBUpdate);
+      clearInterval(presenceInterval);
+    };
   }, []);
 
   return (

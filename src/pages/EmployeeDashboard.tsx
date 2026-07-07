@@ -6,7 +6,7 @@ import {
   getCurrentUser, getTasksByUser, getAttendance, clockIn, clockOut,
   updateTaskStatus, updateTask, addLeaveRequest, getLeaveRequests, clearDB, 
   getActivityLog, logActivity, updateUserTheme, getAnnouncements, awardBadge,
-  addClaim, getClaims,
+  addClaim, getClaims, getConnectedDevices,
   User, Task, LeaveRequest, ActivityLogItem, Announcement, Attendance, FinancialClaim
 } from '../db/store';
 import { CheckSquare, TrendingUp, Trash2, Activity, Clock, Tag, Play, Pause, RotateCcw, Pin, Smile } from 'lucide-react';
@@ -413,6 +413,13 @@ function EmployeeSettings() {
   const user = getCurrentUser();
   const [themeColor, setThemeColor] = useState(user?.themeColor || '#ffffff');
   const [isLightMode, setIsLightMode] = useState(!!user?.isLightMode);
+  const [devices, setDevices] = useState<any[]>([]);
+
+  useEffect(() => {
+    getConnectedDevices((devs) => {
+      setDevices(devs);
+    });
+  }, []);
 
   const handleSaveTheme = (e: React.FormEvent) => {
     e.preventDefault();
@@ -454,6 +461,22 @@ function EmployeeSettings() {
 
             <button type="submit" className="btn btn-primary">Apply Theme</button>
           </form>
+        </div>
+
+        <div className="glass-panel">
+          <h2>Connected Devices (P2P Network)</h2>
+          <p style={{ opacity: 0.8, marginBottom: '1.5rem' }}>Active nodes connected to this decentralized workspace.</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {devices.length === 0 ? <p>Scanning P2P network...</p> : devices.map(d => (
+              <div key={d.id} className="glass-card" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h4 style={{ margin: 0 }}>{d.user}</h4>
+                  <div style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: '0.2rem' }}>{d.userAgent.substring(0, 50)}...</div>
+                </div>
+                <span className="badge badge-success">Online ({Math.floor((Date.now() - d.lastActive)/1000)}s ago)</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="glass-panel" style={{ border: '1px solid var(--danger-color)' }}>
