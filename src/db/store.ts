@@ -16,9 +16,12 @@ export const initPeer = (onIdGenerated?: (id: string) => void) => {
   peer.on('connection', (conn) => {
     setupConnection(conn);
     // Send our database to the newly connected peer
-    conn.on('open', () => {
-      conn.send({ type: 'SYNC_DB', state: JSON.stringify(loadDB()) });
-    });
+    const sendDb = () => conn.send({ type: 'SYNC_DB', state: JSON.stringify(loadDB()) });
+    if (conn.open) {
+      sendDb();
+    } else {
+      conn.on('open', sendDb);
+    }
   });
 
   return peer;
@@ -56,9 +59,9 @@ export const connectToPeer = (targetPeerId: string, onConnected?: () => void, on
   const connect = () => {
     const conn = peer!.connect(targetPeerId);
     setupConnection(conn, onSyncComplete);
-    conn.on('open', () => {
-      if (onConnected) onConnected();
-    });
+    const triggerConnected = () => { if (onConnected) onConnected(); };
+    if (conn.open) triggerConnected();
+    else conn.on('open', triggerConnected);
   };
 
   if (!peer!.open) {
