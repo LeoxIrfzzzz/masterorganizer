@@ -230,6 +230,37 @@ select.form-control option {
   margin-top: 3rem;
 }
 
+/* Header Styles */
+.header-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  z-index: 100;
+  position: relative;
+}
+
+.mobile-menu-btn {
+  display: none; /* Hidden on desktop */
+  background: transparent;
+  border: none;
+  color: var(--dark-text);
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.header-links {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 /* Responsive Autolayouts */
 @media (max-width: 1024px) {
   .grid-3 {
@@ -249,48 +280,34 @@ select.form-control option {
   .header-nav {
     padding: 1rem;
   }
-}
 
-.mobile-menu-btn {
-  display: flex;
-  background: transparent;
-  border: none;
-  color: var(--dark-text);
-  cursor: pointer;
-  padding: 0.5rem;
-}
+  .mobile-menu-btn {
+    display: flex;
+  }
 
-/* Header Styles */
-.header-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 2rem;
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-  z-index: 100;
-}
+  .desktop-brand {
+    display: none;
+  }
 
-.header-links {
-  position: absolute;
-  top: 70px;
-  left: 0;
-  width: 250px;
-  background: var(--darker-bg);
-  flex-direction: column;
-  padding: 1rem;
-  gap: 0.5rem;
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-  display: none; /* Toggled via JS class */
-  z-index: 99;
-}
+  .header-links {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: var(--darker-bg);
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    display: none; /* Toggled via JS class */
+    z-index: 99;
+  }
 
-.header-links.mobile-open {
-  display: flex;
+  .header-links.mobile-open {
+    display: flex;
+  }
 }
 
 /* Utilities */
@@ -308,6 +325,13 @@ select.form-control option {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
+}
+
+@media (min-width: 769px) {
+  .col-span-2 { grid-column: span 2; }
+}
+@media (max-width: 768px) {
+  .col-span-2 { grid-column: span 1 !important; }
 }
 
 /* Header Specifics */

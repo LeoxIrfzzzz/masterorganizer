@@ -256,7 +256,7 @@ function EmployeeManagement() {
           <div className="form-group"><label>Email Address</label><input type="email" className="form-control" value={email} onChange={e => setEmail(e.target.value)} required /></div>
           <div className="form-group"><label>Phone Number</label><input type="text" className="form-control" value={phone} onChange={e => setPhone(e.target.value)} required /></div>
           <div className="form-group"><label>System Username</label><input type="text" className="form-control" value={username} onChange={e => setUsername(e.target.value)} required /></div>
-          <div className="form-group" style={{ gridColumn: '1 / span 2' }}><label>Initial Password</label><input type="text" className="form-control" value={password} onChange={e => setPassword(e.target.value)} required /></div>
+          <div className="form-group col-span-2"><label>Initial Password</label><input type="text" className="form-control" value={password} onChange={e => setPassword(e.target.value)} required /></div>
           <button type="submit" className="btn btn-primary" style={{ alignSelf: 'end', marginBottom: '1.5rem' }}>Onboard</button>
         </form>
       </div>
@@ -359,7 +359,7 @@ function TaskManagement() {
       <h1 style={{ marginBottom: '2rem' }}>Task Dispatch & Control</h1>
       <div className="glass-panel" style={{ marginBottom: '2rem' }}>
         <form onSubmit={handleAddTask} className="grid-3" style={{ gap: '1rem' }}>
-          <div className="form-group" style={{ gridColumn: '1 / span 2' }}>
+          <div className="form-group col-span-2">
             <label>Task Title</label>
             <input type="text" className="form-control" value={title} onChange={e => setTitle(e.target.value)} required />
           </div>
@@ -370,7 +370,7 @@ function TaskManagement() {
               {employees.map(e => <option key={e.id} value={e.id}>{e.name} - {e.department}</option>)}
             </select>
           </div>
-          <div className="form-group" style={{ gridColumn: '1 / span 2' }}>
+          <div className="form-group col-span-2">
             <label>Detailed Briefing</label>
             <textarea className="form-control" value={description} onChange={e => setDescription(e.target.value)} required rows={2} />
           </div>
@@ -379,7 +379,7 @@ function TaskManagement() {
             <input type="url" className="form-control" value={resourceLink} onChange={e => setResourceLink(e.target.value)} placeholder="https://..." />
           </div>
           
-          <div className="form-group" style={{ gridColumn: '1 / span 2' }}>
+          <div className="form-group col-span-2">
             <label>Sub-Tasks Checklist</label>
             <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
               <input type="text" className="form-control" value={subTaskInput} onChange={e=>setSubTaskInput(e.target.value)} placeholder="Add a sub-task..." />
@@ -404,7 +404,7 @@ function TaskManagement() {
               <option value="High">High Priority</option>
             </select>
           </div>
-          <div className="form-group" style={{ gridColumn: '2 / span 2' }}>
+          <div className="form-group col-span-2">
             <label>Tags (Comma separated)</label>
             <input type="text" className="form-control" value={tags} onChange={e => setTags(e.target.value)} placeholder="e.g. urgent, frontend, Q3" />
           </div>
