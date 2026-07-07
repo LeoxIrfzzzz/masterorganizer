@@ -141,17 +141,19 @@ function EmployeeHome() {
       </div>
 
       <div className="grid-2">
-        <div className="glass-panel" style={{ height: '400px' }}>
+        <div className="glass-panel" style={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
           <h2>My Performance Metrics</h2>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-              <XAxis dataKey="name" stroke="var(--light-text)" />
-              <YAxis stroke="var(--light-text)" />
-              <RechartsTooltip contentStyle={{ background: 'var(--darker-bg)', border: '1px solid var(--glass-border)', color: 'var(--dark-text)' }} />
-              <Bar dataKey="value" fill="var(--glow-color)" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <div style={{ flex: 1, minHeight: 0, width: '100%' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 20, right: 30, left: -20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+                <XAxis dataKey="name" stroke="var(--light-text)" />
+                <YAxis stroke="var(--light-text)" />
+                <RechartsTooltip contentStyle={{ background: 'var(--darker-bg)', border: '1px solid var(--glass-border)', color: 'var(--dark-text)' }} />
+                <Bar dataKey="value" fill="var(--glow-color)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         <div className="glass-panel">

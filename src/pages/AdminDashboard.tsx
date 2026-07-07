@@ -118,21 +118,24 @@ function DashboardHome() {
       </div>
 
       <div className="grid-2" style={{ marginBottom: '2rem' }}>
-        <div className="glass-panel" style={{ height: '350px' }}>
+        <div className="glass-panel" style={{ height: '350px', display: 'flex', flexDirection: 'column' }}>
           <h2>7-Day Check-in Rate</h2>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={attendanceData} margin={{ top: 20, right: 30, left: -20, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-              <XAxis dataKey="name" stroke="var(--light-text)" />
-              <YAxis stroke="var(--light-text)" />
-              <RechartsTooltip contentStyle={{ background: 'var(--darker-bg)', border: '1px solid var(--glass-border)', color: 'var(--dark-text)' }} />
-              <Bar dataKey="Present" fill="var(--glow-color)" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <div style={{ flex: 1, minHeight: 0, width: '100%' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={attendanceData} margin={{ top: 20, right: 30, left: -20, bottom: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+                <XAxis dataKey="name" stroke="var(--light-text)" />
+                <YAxis stroke="var(--light-text)" />
+                <RechartsTooltip contentStyle={{ background: 'var(--darker-bg)', border: '1px solid var(--glass-border)', color: 'var(--dark-text)' }} />
+                <Bar dataKey="Present" fill="var(--glow-color)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-        <div className="glass-panel" style={{ height: '350px' }}>
+        <div className="glass-panel" style={{ height: '350px', display: 'flex', flexDirection: 'column' }}>
           <h2>Global Workload Distribution</h2>
-          <ResponsiveContainer width="100%" height="100%">
+          <div style={{ flex: 1, minHeight: 0, width: '100%' }}>
+            <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie data={taskData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value">
                 {taskData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
@@ -140,6 +143,7 @@ function DashboardHome() {
               <RechartsTooltip contentStyle={{ background: 'var(--darker-bg)', border: '1px solid var(--glass-border)', color: 'var(--dark-text)' }} />
             </PieChart>
           </ResponsiveContainer>
+          </div>
         </div>
       </div>
 

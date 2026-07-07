@@ -361,6 +361,14 @@ select.form-control option {
 }
 @media (max-width: 768px) {
   .col-span-2 { grid-column: span 1 !important; }
+  .grid-2, .grid-3 { 
+    grid-template-columns: 1fr; 
+  }
+  .flex-between {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
 }
 
 /* Header Specifics */
