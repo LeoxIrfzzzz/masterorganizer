@@ -24,7 +24,7 @@ export const initPeer = (onIdGenerated?: (id: string) => void) => {
   return peer;
 };
 
-const setupConnection = (conn: DataConnection) => {
+const setupConnection = (conn: DataConnection, onSyncComplete?: () => void) => {
   activeConnections.push(conn);
   
   conn.on('data', (data: any) => {
@@ -40,6 +40,7 @@ const setupConnection = (conn: DataConnection) => {
           window.dispatchEvent(new Event('local-db-updated'));
           isSyncing = false;
         }
+        if (onSyncComplete) onSyncComplete();
       } catch(e) {}
     }
   });
@@ -49,13 +50,22 @@ const setupConnection = (conn: DataConnection) => {
   });
 };
 
-export const connectToPeer = (targetPeerId: string, onConnected?: () => void) => {
+export const connectToPeer = (targetPeerId: string, onConnected?: () => void, onSyncComplete?: () => void) => {
   if (!peer) initPeer();
-  const conn = peer!.connect(targetPeerId);
-  setupConnection(conn);
-  conn.on('open', () => {
-    if (onConnected) onConnected();
-  });
+  
+  const connect = () => {
+    const conn = peer!.connect(targetPeerId);
+    setupConnection(conn, onSyncComplete);
+    conn.on('open', () => {
+      if (onConnected) onConnected();
+    });
+  };
+
+  if (!peer!.open) {
+    peer!.on('open', connect);
+  } else {
+    connect();
+  }
 };
 
 export const getPeerId = () => peer?.id;

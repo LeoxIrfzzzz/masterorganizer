@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { getCompanyInfo, setCompanyInfo, verifyAdminLogin, loginEmployee, connectToPeer } from '../db/store';
+import { getCompanyInfo, setCompanyInfo, verifyAdminLogin, loginEmployee, connectToPeer, getUsers, setCurrentUser } from '../db/store';
 import { Shield, Users, ArrowRight, Link as LinkIcon, Camera } from 'lucide-react';
 import { Scanner } from '@yudiel/react-qr-scanner';
 
@@ -47,12 +47,35 @@ export function LinkDevicePage() {
   const [manualId, setManualId] = useState('');
   const [connecting, setConnecting] = useState(false);
 
-  const handleConnect = (id: string) => {
+  const handleConnect = (rawId: string) => {
     setConnecting(true);
-    connectToPeer(id, () => {
-      // Once connected, wait for data sync then redirect
-      setTimeout(() => navigate('/admin-login'), 1500);
-    });
+    let targetPeerId = rawId;
+    let autoLoginEmployeeId: string | null = null;
+    
+    if (rawId.includes(':')) {
+      const parts = rawId.split(':');
+      targetPeerId = parts[0];
+      autoLoginEmployeeId = parts[1];
+    }
+
+    connectToPeer(targetPeerId, 
+      () => {
+        // Connected to peer
+      },
+      () => {
+        // Sync complete
+        if (autoLoginEmployeeId) {
+          const users = getUsers();
+          const emp = users.find(u => u.id === autoLoginEmployeeId);
+          if (emp) {
+            setCurrentUser(emp);
+            navigate('/employee');
+            return;
+          }
+        }
+        setTimeout(() => navigate('/admin-login'), 1000);
+      }
+    );
   };
 
   return (

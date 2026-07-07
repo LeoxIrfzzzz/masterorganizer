@@ -195,6 +195,7 @@ function EmployeeManagement() {
   const [phone, setPhone] = useState('');
   const [editId, setEditId] = useState<string | null>(null);
   const [editData, setEditData] = useState<Partial<User>>({});
+  const [qrLoginEmployeeId, setQrLoginEmployeeId] = useState<string | null>(null);
 
   const loadEmployees = () => setEmployees(getUsers().filter(u => u.role === 'employee'));
 
@@ -232,6 +233,20 @@ function EmployeeManagement() {
   return (
     <div>
       <h1 style={{ marginBottom: '2rem' }}>Workforce Directory</h1>
+
+      {qrLoginEmployeeId && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center', maxWidth: '400px' }}>
+            <h2 style={{ marginBottom: '1rem' }}>Employee Auto-Login QR</h2>
+            <p style={{ opacity: 0.8, marginBottom: '2rem' }}>Ask the employee to tap <b>Link New Device (QR)</b> on the Landing Page and scan this code. They will be instantly logged in!</p>
+            <div style={{ background: 'white', padding: '1rem', borderRadius: '0.5rem', display: 'inline-block', marginBottom: '2rem' }}>
+              <QRCodeSVG value={`${getPeerId()}:${qrLoginEmployeeId}`} size={250} />
+            </div>
+            <button className="btn btn-secondary" style={{ width: '100%' }} onClick={() => setQrLoginEmployeeId(null)}>Close</button>
+          </div>
+        </div>
+      )}
+
       <div className="glass-panel" style={{ marginBottom: '2rem' }}>
         <h2>Onboard Employee</h2>
         <form onSubmit={handleAddEmployee} className="grid-3" style={{ marginTop: '1rem' }}>
@@ -285,6 +300,7 @@ function EmployeeManagement() {
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button className="btn btn-primary" onClick={() => setQrLoginEmployeeId(emp.id)} title="Show QR Login">QR Login</button>
                       <button className="btn btn-secondary" onClick={() => { setEditId(emp.id); setEditData(emp); }}><Edit2 size={16}/></button>
                       <button className="btn btn-danger" onClick={() => handleDelete(emp.id, emp.name || '')}><Trash2 size={16}/></button>
                     </div>
